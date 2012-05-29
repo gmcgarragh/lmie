@@ -1,0 +1,483 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 4.03">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ <style type="text/css"><!--
+ .tiny {font-size:30%;}
+ .scriptsize {font-size:xx-small;}
+ .footnotesize {font-size:x-small;}
+ .smaller {font-size:smaller;}
+ .small {font-size:small;}
+ .normalsize {font-size:medium;}
+ .large {font-size:large;}
+ .larger {font-size:x-large;}
+ .largerstill {font-size:xx-large;}
+ .huge {font-size:300%;}
+ --></style>
+<title>sec5.html</title>
+<table width="100%"><tr><td>
+ <a href="index.html">HEAD</a></td><td align="right">
+ <a href="sec4.html">PREVIOUS
+</a></td></tr></table>
+ <a id="tth_sEc5"></a><h2>
+5&nbsp;&nbsp;LMie C Interface</h2>
+<a id="lmie_c_interface_interface">
+</a>
+
+<div class="p"><!----></div>
+The LMie C interface is made available by including <tt>src/lmie_interface.h</tt> in your code.  It consists of some enumeration constants, input and output structures as typedefs, and functions for managing memory used in the structures and to call the actual Mie scattering algorithm.
+
+<div class="p"><!----></div>
+In a typical usage the steps taken to use LMie will be:
+
+<ol type="1">
+<li> Allocate memory used by the <tt><tt>lmie_in_data</tt></tt> input structure with <a href="#lmie_in_alloc"><tt><tt><b>lmie_in_alloc</b>()</tt></tt></a>.
+<div class="p"><!----></div>
+</li>
+
+<li> If derivatives are to be computed, zero out all the linearized inputs in the <tt><tt>lmie_in_data</tt></tt> input structure with <a href="#lmie_in_zero_derivs"><tt><tt><b>lmie_in_zero_derivs</b>()</tt></tt></a>.
+<div class="p"><!----></div>
+</li>
+
+<li> Set the input values in the <tt><tt>lmie_in_data</tt></tt> input structure including any nonzero linearized values when derivatives are to be computed
+<div class="p"><!----></div>
+</li>
+
+<li> Call <a href="#lmie_solution"><tt><tt><b>lmie_solution</b>()</tt></tt></a> to calculate the Mie scattering results.
+<div class="p"><!----></div>
+</li>
+
+<li> Read/use the output values from the <tt><tt>lmie_out_data</tt></tt> output structure.
+<div class="p"><!----></div>
+</li>
+
+<li> Free memory allocated to the <tt><tt>lmie_out_data</tt></tt> output structure with <a href="#lmie_out_free"><tt><tt><b>lmie_out_free</b>()</tt></tt></a>.
+<div class="p"><!----></div>
+</li>
+
+<li> If another set of results is required and the number of derivatives has not changed loop back to step 2.
+<div class="p"><!----></div>
+</li>
+
+<li> Free memory allocated to the <tt><tt>lmie_in_data</tt></tt> input structure with <a href="#lmie_in_free"><tt><tt><b>lmie_in_free</b>()</tt></tt></a>
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+See <tt>examples/example_c.c</tt> for an actual example of LMie usage in C.
+
+<div class="p"><!----></div>
+     <a id="tth_sEc5.1"></a><h3>
+5.1&nbsp;&nbsp;Size distributions</h3>
+<a id="lmie_c_interface_size_distributions">
+</a>
+
+<div class="p"><!----></div>
+Size distributions are indicated by the following enumeration constants:
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+SIZE_DIST_MONO <br />
+SIZE_DIST_GAMMA <br />
+SIZE_DIST_MODIFIED_GAMMA <br />
+SIZE_DIST_POWER_LAW <br />
+SIZE_DIST_MODIFIED_POWER_LAW <br />
+SIZE_DIST_LOG_NORMAL <br />
+SIZE_DIST_MODIFIED_BIMODAL_LOG_NORMAL <br />
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+     <a id="tth_sEc5.2"></a><h3>
+5.2&nbsp;&nbsp;Input and output structures</h3>
+<a id="lmie_c_interface_input_and_output_structures">
+</a>
+
+<div class="p"><!----></div>
+The LMie input structure typedef is: <br />
+
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>typedef struct {</tt>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>
+<i>int calc_gc;</i> <br />
+<i>int calc_lc;</i> <br />
+<i>int calc_pf;</i> <br />
+<i>enum size_dist_type dist_type;</i> <br />
+<i>int n_int1;</i> <br />
+<i>int n_int2;</i> <br />
+<i>int n_quad;</i> <br />
+<i>int n_angles;</i> <br />
+<i>int n_derivs;</i> <br />
+<i>double lambda;</i> <br />
+<i>double mr;</i> <br />
+<i>double mi;</i> <br />
+<i>double a1;</i> <br />
+<i>double b1;</i> <br />
+<i>double a2;</i> <br />
+<i>double b2;</i> <br />
+<i>double gamma;</i> <br />
+<i>double r1;</i> <br />
+<i>double r2;</i> <br />
+<i>double *lambda_l;</i> <br />
+<i>double *mr_l;</i> <br />
+<i>double *mi_l;</i> <br />
+<i>double *a1_l;</i> <br />
+<i>double *b1_l;</i> <br />
+<i>double *a2_l;</i> <br />
+<i>double *b2_l;</i> <br />
+<i>double *gamma_l;</i> <br />
+<i>double *r1_l;</i> <br />
+<i>double *r2_l;</i> <br />
+<i>double accuracy;</i>
+</tt>
+</dd>
+</dl>
+<tt>} lmie_in_data;</tt>
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+The LMie output structure typedef is: <br />
+
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>typedef struct {</tt>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>
+<i>int n_coef;</i> <br />
+<i>double r1;</i> <br />
+<i>double r2;</i> <br />
+<i>double norm;</i> <br />
+<i>double reff;</i> <br />
+<i>double veff;</i> <br />
+<i>double gavg;</i> <br />
+<i>double vavg;</i> <br />
+<i>double ravg;</i> <br />
+<i>double rvw;</i> <br />
+<i>double cext;</i> <br />
+<i>double csca;</i> <br />
+<i>double cbak;</i> <br />
+<i>double g;</i> <br />
+<i>double **gc;</i> <br />
+<i>double **lc;</i> <br />
+<i>double *theta;</i> <br />
+<i>double **pf;</i> <br />
+<i>double *r1_l;</i> <br />
+<i>double *r2_l;</i> <br />
+<i>double *norm_l;</i> <br />
+<i>double *reff_l;</i> <br />
+<i>double *veff_l;</i> <br />
+<i>double *gavg_l;</i> <br />
+<i>double *vavg_l;</i> <br />
+<i>double *ravg_l;</i> <br />
+<i>double *rvw_l;</i> <br />
+<i>double *cext_l;</i> <br />
+<i>double *csca_l;</i> <br />
+<i>double *cbak_l;</i> <br />
+<i>double *g_l;</i> <br />
+<i>double ***gc_l;</i> <br />
+<i>double ***lc_l;</i> <br />
+<i>double ***pf_l;</i>
+</tt>
+</dd>
+</dl>
+<tt>} lmie_in_data;</tt>
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+     <a id="tth_sEc5.3"></a><h3>
+5.3&nbsp;&nbsp;Function interface</h3>
+<a id="lmie_c_interface_function_interface">
+</a>
+
+<div class="p"><!----></div>
+<a id="lmie_in_alloc">
+</a><div class="large"><p class="hangingindent">
+<tt>int <b>lmie_in_alloc</b>(<i>lmie_in_data&nbsp;*<b>in</b>, int <b>n_derivs</b></i>)</tt>
+</p>
+
+<div class="p"><!----></div>
+</div>
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<b>Description:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+Allocate memory used by an <tt><tt>lmie_in_data</tt></tt> input structure.  This function should be called before populating an <tt><tt>lmie_in_data</tt></tt> input structure before the first call to <a href="#lmie_solution"><tt><tt><b>lmie_solution</b>()</tt></tt></a>.  After calling this function all pointers within the <tt><tt>lmie_in_data</tt></tt> input structure may be used as valid arrays over subsequent calls to <a href="#lmie_solution"><tt><tt><b>lmie_solution</b>()</tt></tt></a> as long as <tt><tt><i><b>n_derivs</b></i></tt></tt> does not change.  Once use of the <tt><tt>lmie_in_data</tt></tt> input structure is finished <a href="#lmie_in_free"><tt><tt><b>lmie_in_free</b>()</tt></tt></a> must be called to free the allocated memory.
+
+<div class="p"><!----></div>
+</dd>
+</dl><b>Arguments:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<table>
+<tr><td align="left"><tt><em><b>in</b></em></tt> &nbsp;&nbsp; </td><td align="left">an <tt><tt>lmie_in_data</tt></tt> input structure for which to allocate memory </td></tr>
+<tr><td align="left"><tt><em><b>n_derivs</b></em></tt> &nbsp;&nbsp; </td><td align="left">the number of derivatives for which to allocate memory </td></tr>
+<tr><td align="left"></td></tr></table>
+
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+<b>Return value:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+Zero with successful completion or otherwise on error.
+
+<div class="p"><!----></div>
+</dd>
+</dl></dd>
+</dl><a id="lmie_in_free">
+</a><div class="large"><p class="hangingindent">
+<tt>void <b>lmie_in_free</b>(<i>lmie_in_data&nbsp;*<b>in</b>, int <b>flag</b></i>)</tt>
+</p>
+
+<div class="p"><!----></div>
+</div>
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<b>Description:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+Free memory allocated to an <tt><tt>lmie_in_data</tt></tt> input structure by <a href="#lmie_in_alloc"><tt><tt><b>lmie_in_alloc</b>()</tt></tt></a>.  This function should be called after use of an <tt><tt>lmie_in_data</tt></tt> input structure is finished.
+
+<div class="p"><!----></div>
+</dd>
+</dl><b>Arguments:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<table>
+<tr><td align="left"><tt><em><b>in</b></em></tt> &nbsp;&nbsp; </td><td align="left">an <tt><tt>lmie_in_data</tt></tt> input structure for which to free memory </td></tr>
+<tr><td align="left"><tt><em><b>flag</b></em></tt> &nbsp;&nbsp; </td><td align="left">zero if the number of derivatives is zero and nonzero otherwise </td></tr>
+<tr><td align="left"></td></tr></table>
+
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+<b>Return value:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+None.
+
+<div class="p"><!----></div>
+</dd>
+</dl></dd>
+</dl><a id="lmie_out_free">
+</a><div class="large"><p class="hangingindent">
+<tt>void <b>lmie_out_free</b>(<i>lmie_out_data&nbsp;*<b>out</b>, int <b>flag</b></i>)</tt>
+</p>
+
+<div class="p"><!----></div>
+</div>
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<b>Description:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+Free memory allocated to an <tt><tt>lmie_out_data</tt></tt> output structure by <a href="#lmie_solution"><tt><tt><b>lmie_solution</b>()</tt></tt></a>.  This function should be called after use of the output data within the <tt><tt>lmie_out_data</tt></tt> output structure is finished and before another call to <a href="#lmie_solution"><tt><tt><b>lmie_solution</b>()</tt></tt></a> otherwise the allocated memory from the previous call will be leaked.
+
+<div class="p"><!----></div>
+</dd>
+</dl><b>Arguments:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<table>
+<tr><td align="left"><tt><em><b>out</b></em></tt> &nbsp;&nbsp; </td><td align="left">an <tt><tt>lmie_out_data</tt></tt> output structure for which to free memory </td></tr>
+<tr><td align="left"><tt><em><b>flag</b></em></tt> &nbsp;&nbsp; </td><td align="left">zero if the number of derivatives is zero and nonzero otherwise </td></tr>
+<tr><td align="left"></td></tr></table>
+
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+<b>Return value:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+None.
+
+<div class="p"><!----></div>
+</dd>
+</dl></dd>
+</dl><a id="lmie_in_zero_derivs">
+</a><div class="large"><p class="hangingindent">
+<tt>void <b>lmie_in_zero_derivs</b>(<i>lmie_in_data&nbsp;*<b>in</b>, int <b>n_derivs</b></i>)</tt>
+</p>
+
+<div class="p"><!----></div>
+</div>
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<b>Description:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+Sets all the linearized inputs (derivatives) in an <tt><tt>lmie_in_data</tt></tt> input structure to zero.  This function is not necessary and is provided as convenience since in many cases most of the linearized inputs are set to zero.  This function must be called after a call to <a href="#lmie_in_alloc"><tt><tt><b>lmie_in_alloc</b>()</tt></tt></a>.
+
+<div class="p"><!----></div>
+</dd>
+</dl><b>Arguments:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<table>
+<tr><td align="left"><tt><em><b>in</b></em></tt> &nbsp;&nbsp; </td><td align="left">an <tt><tt>lmie_in_data</tt></tt> input structure for which to zero the linearized inputs </td></tr>
+<tr><td align="left"></td></tr></table>
+
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+<b>Return value:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+None.
+
+<div class="p"><!----></div>
+</dd>
+</dl></dd>
+</dl><a id="lmie_solution">
+</a><div class="large"><p class="hangingindent">
+<tt>int <b>lmie_solution</b>(<i>lmie_in_data&nbsp;*<b>in</b>, lmie_out_data&nbsp;*<b>out</b>, int <b>alloc_out</b>, int <b>verbose</b>, int <b>n_threads</b>, int <b>use_mpi</b></i>)</tt>
+</p>
+
+<div class="p"><!----></div>
+</div>
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<b>Description:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+Run the actual Mie scattering algorithm using the inputs in the supplied input structure and put the outputs in the supplied output structure.
+
+<div class="p"><!----></div>
+</dd>
+</dl><b>Arguments:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<table>
+<tr><td align="left"><tt><em><b>in</b></em></tt> &nbsp;&nbsp; </td><td align="left">the <tt><tt>lmie_in_data</tt></tt> input structure </td></tr>
+<tr><td align="left"><tt><em><b>out</b></em></tt> &nbsp;&nbsp; </td><td align="left">the <tt><tt>lmie_out_data</tt></tt> output structure </td></tr>
+<tr><td align="left"><tt><em><b>alloc_out</b></em></tt> &nbsp;&nbsp; </td><td align="left">Flag indicating whether or not memory should be allocated for the <tt><tt>lmie_out_data</tt></tt> output structure.  This should only be set to "false" if enough memory has already been allocated for the <tt><tt>lmie_out_data</tt></tt> output structure, either by the user or from a subsequent call to <tt><tt><b>lmie_solution</b>()</tt></tt>.  The amount of memory used is dependent on the input value <tt>r2</tt> so that an initial call to <tt><tt><b>lmie_solution</b>()</tt></tt> using a maximum value for <tt>r2</tt> will allocate enough memory for subsequent calls with a lesser or equal value of <tt>r2</tt>. </td></tr>
+<tr><td align="left"><tt><em><b>n_threads</b></em></tt> &nbsp;&nbsp; </td><td align="left">Number of threads to use.  For minimum run times the number of threads should be set to the number of cores available on the machine being used. </td></tr>
+<tr><td align="left"><tt><em><b>use_mpi</b></em></tt> &nbsp;&nbsp; </td><td align="left">A flag indicating whether or not to use MPI.  This requires the execution of two or more separate calling processes using the appropriate MPI execution program.  MPI parallelization is above the threaded parallelization in which case <tt><tt><i><b>n_threads</b></i></tt></tt> indicates the number of threads to use <em>per</em> MPI process. </td></tr>
+<tr><td align="left"><tt><em><b>verbose</b></em></tt> &nbsp;&nbsp; </td><td align="left">A flag indicating whether or not to print information useful for debugging.  Currently only information useful for debugging calls using MPI is printed. </td></tr>
+<tr><td align="left"></td></tr></table>
+
+</dd>
+</dl>
+
+<div class="p"><!----></div>
+<b>Return value:</b>
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<div class="p"><!----></div>
+Zero with successful completion or otherwise on error.
+
+<div class="p"><!----></div>
+</dd>
+</dl></dd>
+</dl>
+     <a id="tth_sEc5.4"></a><h3>
+5.4&nbsp;&nbsp;Example C program using LMie</h3>
+<a id="lmie_c_interface_example_c_program_using_lmie">
+</a>
+
+<div class="p"><!----></div>
+An example program using the C interface is at
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examples/example_c.c
+
+</pre>
+and when the LMie code is compiled properly the C example program will be compiled as
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;examples/example_c
+
+</pre>
+
+<div class="p"><!----></div>
+
+<hr /><table width="100%"><tr><td>
+ <a href="index.html">HEAD</a></td><td align="right">
+<a href="sec6.html">NEXT
+</a></td></tr></table>
+</div></body></html>

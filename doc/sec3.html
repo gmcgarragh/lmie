@@ -1,0 +1,424 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 4.03">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ <style type="text/css"><!--
+ .tiny {font-size:30%;}
+ .scriptsize {font-size:xx-small;}
+ .footnotesize {font-size:x-small;}
+ .smaller {font-size:smaller;}
+ .small {font-size:small;}
+ .normalsize {font-size:medium;}
+ .large {font-size:large;}
+ .larger {font-size:x-large;}
+ .largerstill {font-size:xx-large;}
+ .huge {font-size:300%;}
+ --></style>
+<title>sec3.html</title>
+<table width="100%"><tr><td>
+ <a href="index.html">HEAD</a></td><td align="right">
+ <a href="sec2.html">PREVIOUS
+</a></td></tr></table>
+ <a id="tth_sEc3"></a><h2>
+3&nbsp;&nbsp;LMie Inputs</h2>
+<a id="lmie_inputs">
+</a>
+
+<div class="p"><!----></div>
+This section gives a detailed description of LMie's inputs independent of the details of the input interfaces.  See the appropriate interface section for details on actually supplying inputs to LMie.
+
+<div class="p"><!----></div>
+
+<dl>
+<a id="calc_pf">
+</a> <dt><b><tt>calc_pf</tt></b></dt>
+	<dd>  <br />
+Flag indicating whether or not to compute the elements of the scattering phase matrix.
+
+<div class="p"><!----></div>
+<a id="calc_gc">
+</a></dd>
+ <dt><b><tt>calc_gc</tt></b></dt>
+	<dd>  <br />
+Flag indicating whether or not to compute the coefficients for the expansion of the scattering phase matrix in terms of generalized spherical functions.
+
+<div class="p"><!----></div>
+<a id="calc_lc">
+</a></dd>
+ <dt><b><tt>calc_lc</tt></b></dt>
+	<dd>  <br />
+Flag indicating whether or not to compute the coefficients for the expansion of the scattering phase matrix in terms of Legendre polynomials.
+
+<div class="p"><!----></div>
+<a id="dist_type">
+</a></dd>
+ <dt><b><tt>dist_type</tt></b></dt>
+	<dd>  <br />
+The particle size distribution to use.  Currently seven size distributions are supported.  Distributions 2 - 6 are given here as in chapter 5 of <a href="refs.html#mishchenko_michael_i_2002b" id="CITEmishchenko_michael_i_2002b">Mishchenko et&nbsp;al. [2002]</a>
+
+<ol type="1">
+<li> mono:
+<a id="eq:lmie_inputs_mono_dist">
+</a>
+<br clear="all" /><table border="0" width="90%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+n(r) = 1</td></tr></table>
+</td><td width="1%">(1)</td></tr></table>
+
+
+<div class="p"><!----></div>
+</li>
+
+<li> gamma:
+<a id="eq:lmie_inputs_gamma_dist">
+</a>
+<br clear="all" /><table border="0" width="90%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+ n(r) = C r<sup>(1 &#8722; 3b) / b</sup> exp</td><td align="left" class="cl">&#x239B;<br />&#x239D;
+</td><td nowrap="nowrap" align="center">
+&#8722;</td><td nowrap="nowrap" align="center">
+r
+<div class="hrcomp"><hr noshade="noshade" size="1"/></div>ab<br /></td><td align="left" class="cl">&#x239E;<br />&#x23A0;
+</td><td nowrap="nowrap" align="center">
+, b  &#8712; (0, 0.5)</td></tr></table>
+</td><td width="1%">(2)</td></tr></table>
+
+
+<div class="p"><!----></div>
+</li>
+
+<li> modified gamma:
+<a id="eq:lmie_inputs_modified_gamma_dist">
+</a>
+<br clear="all" /><table border="0" width="90%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+ n(r) = C r<sup>&#945;</sup> exp</td><td align="left" class="cl">&#x239B;<br />&#x239D;
+</td><td nowrap="nowrap" align="center">
+&#8722;</td><td nowrap="nowrap" align="center">
+&#945;r<sup>&#947;</sup>
+<div class="hrcomp"><hr noshade="noshade" size="1"/></div>&#947;r <sup>&#947;</sup><sub>c</sub><br /></td><td align="left" class="cl">&#x239E;<br />&#x23A0;
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td><td width="1%">(3)</td></tr></table>
+
+
+<div class="p"><!----></div>
+</li>
+
+<li> power law:
+<a id="eq:lmie_inputs_power_law_dist">
+</a>
+<br clear="all" /><table border="0" width="90%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+ n(r) = </td><td align="left" class="cl">&#x23A7;<br />&#x23AA;<br />&#x23A8;<br />
+&#x23AA;<br />&#x23A9;
+</td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+Cr<sup>&#8722;3</sup> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<span class="roman">if</span> <span class="roman">r</span><sub><span class="roman">1</span></sub>  &#8804; <span class="roman">r</span>  &#8804; <span class="roman">r</span><sub><span class="roman">2</span></sub> </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+0 </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<span class="roman">otherwise</span></td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td><td width="1%">(4)</td></tr></table>
+
+
+<div class="p"><!----></div>
+</li>
+
+<li> modified power law:
+<a id="eq:lmie_inputs_modified_power_law_dist">
+</a>
+<br clear="all" /><table border="0" width="90%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+ n(r) = </td><td align="left" class="cl">&#x23A7;<br />&#x23AA;<br />&#x23A8;<br />
+&#x23AA;<br />&#x23A9;
+</td><td nowrap="nowrap" align="center">
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+C </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<span class="roman">if</span> <span class="roman">0</span>  &#8804; <span class="roman">r</span>  &#8804; <span class="roman">r</span><sub><span class="roman">1</span></sub> </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+C(r/r<sub>1</sub>)<sup>&#945;</sup> </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<span class="roman">if</span> <span class="roman">r</span><sub><span class="roman">1</span></sub>  &#8804; <span class="roman">r</span>  &#8804; <span class="roman">r</span><sub><span class="roman">2</span></sub> </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+0 </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<span class="roman">if</span> <span class="roman">r</span><sub><span class="roman">2</span></sub>  &#8804; <span class="roman">r</span></td></tr></table></td></tr></table>
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td><td width="1%">(5)</td></tr></table>
+
+
+<div class="p"><!----></div>
+</li>
+
+<li> log normal:
+<a id="eq:lmie_inputs_log_normal_dist">
+</a>
+<br clear="all" /><table border="0" width="90%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+ n(r) = C r<sup>&#8722;1</sup> exp</td><td align="left" class="cl">&#x23A1;<br />&#x23A3;
+</td><td nowrap="nowrap" align="center">
+&#8722;</td><td nowrap="nowrap" align="center">
+(lnr &#8722; lnr<sub>g</sub>)<sup>2</sup>
+<div class="hrcomp"><hr noshade="noshade" size="1"/></div>2 ln<sup>2</sup>&#963;<sub>g</sub><br /></td><td align="left" class="cl">&#x23A4;<br />&#x23A6;
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td><td width="1%">(6)</td></tr></table>
+
+
+<div class="p"><!----></div>
+</li>
+
+<li> modified bimodal log normal:
+<a id="eq:lmie_inputs_modified_bimodal_log_normal_dist">
+</a>
+<br clear="all" /><table border="0" width="90%"><tr><td>
+<table align="center" cellspacing="0"  cellpadding="2"><tr><td nowrap="nowrap" align="center">
+ n(r) = C r<sup>&#8722;4</sup> </td><td align="left" class="cl">&#x23A7;<br />&#x23A8;<br />
+&#x23A9;
+</td><td nowrap="nowrap" align="center">
+exp</td><td align="left" class="cl">&#x23A1;<br />&#x23A3;
+</td><td nowrap="nowrap" align="center">
+&#8722;</td><td nowrap="nowrap" align="center">
+(lnr &#8722; lnr<sub>g1</sub>)<sup>2</sup>
+<div class="hrcomp"><hr noshade="noshade" size="1"/></div>2 ln<sup>2</sup>&#963;<sub>g1</sub><br /></td><td align="left" class="cl">&#x23A4;<br />&#x23A6;
+</td><td nowrap="nowrap" align="center">
++ &#947;exp</td><td align="left" class="cl">&#x23A1;<br />&#x23A3;
+</td><td nowrap="nowrap" align="center">
+&#8722;</td><td nowrap="nowrap" align="center">
+(lnr &#8722; lnr<sub>g2</sub>)<sup>2</sup>
+<div class="hrcomp"><hr noshade="noshade" size="1"/></div>2 ln<sup>2</sup>&#963;<sub>g2</sub><br /></td><td align="left" class="cl">&#x23A4;<br />&#x23A6;
+</td><td align="left" class="cl">&#x23AB;<br />&#x23AC;<br />
+&#x23AD;
+</td><td nowrap="nowrap" align="center">
+</td></tr></table>
+</td><td width="1%">(7)</td></tr></table>
+
+
+<div class="p"><!----></div>
+</li>
+</ol>
+where C is the normalization constant, r is particle radius, r<sub>1</sub> and r<sub>2</sub> are the minimum and maximum radii in the size distribution (input parameters <a href="#r1_r2"><tt>r1</tt></a> and <a href="#r1_r2"><tt>r2</tt></a>), and the other size distribution parameters are input via inputs <a href="#a1_a5"><tt>a1</tt> - <tt>a5</tt></a>.
+
+<div class="p"><!----></div>
+<a id="n_int1">
+</a></dd>
+ <dt><b><tt>n_int1</tt></b></dt>
+	<dd>  <br />
+The number of subintervals from 0 to r<sub>1</sub> for the integration of size distribution.  Only used for the power law size distribution.
+
+<div class="p"><!----></div>
+<a id="n_int2">
+</a></dd>
+ <dt><b><tt>n_int2</tt></b></dt>
+	<dd>  <br />
+The number of subintervals from r<sub>1</sub> to r<sub>2</sub> for the integration of size distribution.
+
+<div class="p"><!----></div>
+<a id="n_quad">
+</a></dd>
+ <dt><b><tt>n_quad</tt></b></dt>
+	<dd>  <br />
+The number of quadrature points to use per subinterval for the integration of size distribution.
+
+<div class="p"><!----></div>
+<a id="n_angles">
+</a></dd>
+ <dt><b><tt>n_angles</tt></b></dt>
+	<dd>  <br />
+The number of scattering angles at which to compute the elements of the scattering matrix.  Only used if input flag <a href="#calc_pf"><tt>calc_pf</tt></a> is set.
+
+<div class="p"><!----></div>
+<a id="n_derivs">
+</a></dd>
+ <dt><b><tt>n_derivs</tt></b></dt>
+	<dd>  <br />
+The number of derivatives to be computed.
+
+<div class="p"><!----></div>
+<a id="lambda">
+</a></dd>
+ <dt><b><tt>lambda</tt></b></dt>
+	<dd>  <br />
+Wavelength of incident radiation, the units of which must be consistent with the input size distribution parameters <a href="#a1_a5"><tt>a1</tt> - <tt>a5</tt></a>.
+
+<div class="p"><!----></div>
+<a id="mr">
+</a></dd>
+ <dt><b><tt>mr</tt></b></dt>
+	<dd>  <br />
+The real part of the complex index of refraction of the particle medium.
+
+<div class="p"><!----></div>
+<a id="mi">
+</a></dd>
+ <dt><b><tt>mi</tt></b></dt>
+	<dd>  <br />
+The imaginary part of the complex index of refraction of the particle medium.  Must be positive.
+
+<div class="p"><!----></div>
+<a id="a1_a5">
+</a></dd>
+ <dt><b><tt>a1</tt> - <tt>a5</tt></b></dt>
+	<dd>  <br />
+Size distribution parameters, the units of which must be consistent with the wavelength of incident radiation <a href="#lambda"><tt>lambda</tt></a>.  The number of parameters used and their definition depend on the size distribution selected by input <a href="#dist_type"><tt>dist_type</tt></a>.  The unused parameters are ignored.
+
+<ol type="1">
+<li> mono:
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>a1</tt> = r
+</dd>
+</dl>
+<div class="p"><!----></div>
+</li>
+
+<li> gamma:
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>a1</tt> = a <tt>a2</tt> = b
+</dd>
+</dl>
+<div class="p"><!----></div>
+</li>
+
+<li> modified gamma:
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>a1</tt> = &#945;<tt>a2</tt> = r<sub>c</sub> <tt>a3</tt> = &#947;
+</dd>
+</dl>
+<div class="p"><!----></div>
+</li>
+
+<li> power law:
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>a1</tt> = r<sub><span class="roman">eff</span></sub> <tt>a2</tt> = v<sub><span class="roman">eff</span></sub>
+</dd>
+</dl>
+<div class="p"><!----></div>
+</li>
+
+<li> modified power law:
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>a1</tt> = &#945;
+</dd>
+</dl>
+<div class="p"><!----></div>
+</li>
+
+<li> log normal:
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>a1</tt> = r<sub>g</sub> <tt>a2</tt> = (ln&#963;<sub>g</sub>)<sup>2</sup>
+</dd>
+</dl>
+<div class="p"><!----></div>
+</li>
+
+<li> modified bimodal log normal:
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+<tt>a1</tt> = r<sub>g,1</sub> <tt>a2</tt> = (ln&#963;<sub>g,1</sub>)<sup>2</sup> <tt>a3</tt> = r<sub>g,2</sub> <tt>a4</tt> = (ln&#963;<sub>g,2</sub>)<sup>2</sup> <tt>a5</tt> = &#947;
+</dd>
+</dl>
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+<a id="r1_r2">
+</a></dd>
+ <dt><b><tt>r1</tt>, <tt>r2</tt></b></dt>
+	<dd>  <br />
+Minimum and maximum radii (r<sub>1</sub> and r<sub>2</sub>) in the size distribution.  In theory, <tt>r1</tt> and <tt>r2</tt> should be equal to zero and infinity, respectively.  In practice, the user should extend their range until the calculated scattering characteristics converge to within a prescribed numerical accuracy.  Unused for the mono (disperse) and power law size distributions.
+
+<div class="p"><!----></div>
+<a id="accuracy">
+</a></dd>
+ <dt><b><tt>accuracy</tt></b></dt>
+	<dd>  <br />
+The numerical accuracy at which to compute the coefficients for the expansion of the scattering matrix in terms of generalized spherical functions (flag <a href="#calc_gc"><tt>calc_gc</tt></a>) and/or Legendre polynomials (flag <a href="#calc_lc"><tt>calc_lc</tt></a>).
+
+<div class="p"><!----></div>
+<a id="linearized_inputs">
+</a></dd>
+ <dt><b><tt>lambda_l</tt>, <tt>mr_l</tt>, <tt>mi_l</tt>, <tt>a1_l</tt> - <tt>a5_l</tt>, <tt>r1_l</tt>, <tt>r2_l</tt></b></dt>
+	<dd>  <br />
+Linearized inputs indicated by a "<tt>_l</tt>" appended to the name for the associated input base value.  These inputs are one dimensional arrays of size <a href="#n_derivs"><tt>n_derivs</tt></a> where each element is associated with one of <a href="#n_derivs"><tt>n_derivs</tt></a> derivatives.  As a simple example, if we have a log normal size distribution and we are interested in derivatives with respect to m<sub>r</sub>, m<sub>i</sub>, r<sub>g</sub>, and (ln&#963;<sub>g</sub>)<sup>2</sup>, in that order, for a total of 4 derivatives, the inputs would be set as
+
+<dl>
+ <dt><b></b></dt>
+	<dd>
+
+<table>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>lambda_l</tt> </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+=</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{0, 0, 0, 0} </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>mr_l</tt> </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+=</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{1, 0, 0, 0} </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>mi_l</tt> </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+=</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{0, 1, 0, 0} </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>a1_l</tt> </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+=</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{0, 0, 1, 0} </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>a2_l</tt> </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+=</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{0, 0, 0, 1} </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>r1_l</tt> </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+=</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{0, 0, 0, 0} </td></tr></table></td></tr>
+<tr><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+<tt>r2_l</tt> </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+=</td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
+{0, 0, 0, 0}</td></tr></table></td></tr></table>
+
+</dd>
+</dl>
+More complex inputs, with values other than unity and where more than one linearized input is set to nonzero for a particular derivative index, are possible if one has derivatives of the inputs with respect to parameters further up the chain and is interested in Mie results with respect to these parameters.</dd>
+</dl>
+
+<div class="p"><!----></div>
+
+<hr /><table width="100%"><tr><td>
+ <a href="index.html">HEAD</a></td><td align="right">
+<a href="sec4.html">NEXT
+</a></td></tr></table>
+</div></body></html>

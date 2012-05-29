@@ -1,0 +1,22 @@
+#*******************************************************************************
+calllmie is a command line interface to lmie.  Please see the LMie documentation
+for details on running callxrtm.
+
+The example below is for the same senario used in the example programs.  Please
+see the description given in the source files for details.  The scattering
+results are output to the files 2_250000_miam00.gc (generalized spherical
+functions) and 2_250000_miam00.pf (phase function) while the derivatives with
+respect to mean radius, variance, and the real and imaginary parts of the index
+of refraction are output to files of a similar name with the endings _l_r_g,
+_sigma2, _l_m_r, and _l_m_, respectively.
+
+../../lmie/utils/calllmie \
+     -derivs 4 \
+     -dist log_normal 3.900e-01 4.805e-01 5.000e-03 5.000e+01 \
+     -dist_l 1.,0.,0.,0. 0.,1.,0.,0. 0.,0.,0.,0. 0.,0.,0.,0. \
+     -lambda 2.250e+00 \
+     -m 1.530e+00 5.400e-03 \
+     -m_l 0.,0.,1.,0. 0.,0.,0.,1. \
+     -n_int2 64 -n_quad 64 -n_angles 181 \
+     -gc 2_250000_miam00.gc 2_250000_miam00_l_r_g.gc,2_250000_miam00_l_sigma2.gc,2_250000_miam00_l_m_r.gc,2_250000_miam00_l_m_i.gc \
+     -pf 2_250000_miam00.pf 2_250000_miam00_l_r_g.pf,2_250000_miam00_l_sigma2.pf,2_250000_miam00_l_m_r.pf,2_250000_miam00_l_m_i.pf

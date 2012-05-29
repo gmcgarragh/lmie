@@ -1,0 +1,1095 @@
+%*******************************************************************************
+%
+%*******************************************************************************
+\input{common.tex}
+
+
+\titleformat{\chapter}{\bf\LARGE}{\thechapter}{1em}{}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\newcommand{\version}{0.90}
+
+\newcommand{\compresslist}{%
+\vspace{-10.0pt}%
+\setlength{\topsep}{0.0pt}%
+\setlength{\partopsep}{0.0pt}%
+\setlength{\itemsep}{1.25pt}%
+}%
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\special{html:<title>LMie Documentation</title>}
+\special{html:<link rel="stylesheet" href="style.css" type="text/css">}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\begin{document}
+
+\bibliographystyle{plainnat}
+
+
+\frontmatter
+
+
+\iftth
+\begin{center}
+{\huge \bfseries LMie} \\ \\
+A Linearized Mie Scattering Implementation\\ \\
+Version \version \\
+\today
+\end{center}
+\else
+\begin{titlepage}
+\vspace*{1.25in}
+{\noindent \huge \bfseries LMie} \\
+\rule{\linewidth}{3.0pt}
+\flushright
+A Linearized Mie Scattering Implementation \\
+Version \version \\
+\usdate\today
+\vfill
+\flushleft
+\Large Greg McGarragh
+\rule{\linewidth}{1.5pt}
+\end{titlepage}
+\fi
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\null
+\iftth
+\vspace{0.25in}
+\else
+\vfill
+\fi
+{
+\setlength{\parskip}{7.5pt}
+
+\noindent
+This manual describes how to install and use LMie (A Linearized Mie Scattering Implementation) version \version.
+
+\noindent
+Copyright \copyright \ 2008-2012 Greg McGarragh
+
+\noindent
+Permission is granted to copy, distribute and/or modify this document under the terms of the \href{http://www.gnu.org/licenses/fdl-1.3.html}{GNU Free Documentation License, Version 1.3} or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.  A copy of the license is included in the section entitled ``GNU Free Documentation License''.
+}
+
+
+\tableofcontents
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\mainmatter
+
+
+\setlength{\parskip}{5.0pt}
+
+
+\xdocchapter{Introduction to LMie}
+\label{introduction_to_lmie}
+
+LMie (Linearized Mie) computes the scattering properties for polydisperse homogeneous spherical particles using Mie theory~\citep{mie_gustav_1908}.  Six different particle size distributions are supported including power law, modified power law, gamma, modified gamma, log normal, and modified bimodal log normal.  The outputs include the extinction, scattering, and backscattering cross sections; asymmetry parameter, elements of the normalized scattering matrix, coefficients for the expansion of the scattering matrix in either generalized spherical functions or Legendre functions, and finally, several quantities related to the numerical integration of the size distribution including the effective radius and effective variance.  
+
+LMie has two other features that sets it apart from other Mie scattering implementations.  First, it has the option to analytically generate derivatives of the outputs with respect to input parameters such as size distribution parameters and the real and imaginary parts of the complex index of refraction.  This makes LMie convenient for sensitivity studies and remote sensing retrievals of particle properties.  Second, LMie is parallelized over the size distribution integration with OpenMP for shared memory systems such as multi-core workstations and with MPI for clusters.
+
+LMie's core library is coded in C with a well defined application programming interface (API) and is thread safe so that multiple instances can be called safely in shared memory multi-processor environments.  Interfaces are also provided for Fortran 77 and Fortran 90 and, alternatively, LMie can be executed independently as a stand alone program.  Finally, example programs that call LMie are provided for each language interface.
+
+For up to date information regarding LMie, to download the source code distribution, and/or to view the documentation please visit the LMie web page at
+\begin{list}{}{}
+\item \url{http://reef.atmos.colostate.edu/~gregm/lmie/}
+\end{list}
+
+For questions or comments or to report a bug email Greg at \href{mailto:gregm@atmos.colostate.edu}{gregm@atmos.colostate.edu}.  Bug reports are greatly appreciated!  If you would like to report a bug please include sample code that reproduces the bug, along with the inputs and expected outputs.
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocsection{License}
+\label{introduction_to_lmie_license}
+
+\license{LMie}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocsection{Conventions used in this manual}
+\label{introduction_to_lmie_conventions_used_in_this_manual}
+
+\conventions
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocchapter{Building and Using LMie}
+\label{building_and_using_lmie}
+
+This section discusses, first, the process of building (compiling) LMie including the core library, the language interfaces, the example programs, and the utility programs.  Then the compilation details of using the LMie core library and the appropriate language interface in your programs is outlined.
+
+
+\xdocsection{Building LMie}
+\label{building_and_using_lmie_building_lmie}
+
+
+\xdocsubsection{GNU Make}
+\label{building_and_using_lmie_building_lmie_gnu_make}
+
+The standard build system uses GNU Make (other versions of UNIX Make may work but are not tested).  This should work on Linux, Unix, Mac OS, and on Windows using either \href{http://www.cygwin.com/}{Cygwin} or \href{http://www.mingw.org/}{MinGW (Minimalist GNU for Windows)}.
+
+The first step is to configure the build for your environment.  This includes setting the compiler commands and the associated options and setting the appropriate paths to external libraries.  Settings are contained in the file \texttt{make.inc} in the LMie base directory.
+
+Compiler and associated options are contained within the section identified as ``Compiler and linker settings''.  The commands for the compilers to use are represented by the variables \texttt{CC}, \texttt{F77}, and \texttt{F90}, for the C, Fortran 77, and Fortran 90 compilers, respectively, and the associated options are represented by the variables \texttt{CCFLAGS}, \texttt{F77FLAGS}, and \texttt{F90FLAGS}.  The default settings are appropriate for GCC (GNU Compiler Collection) versions 4.2 and greater and should not have to be modified unless other compilers are being used.  Note that LMie is entirely C89/90 compliant except for the use of complex types.  Therefore, the C compiler must be C99 compliant.  As an alternative, all of LMie's C code may be built with a C++ compiler in which case the complex support is through the C++ standard library's complex class.
+
+The next section of \texttt{make.inc} is for OpenMP settings.  If multithreading is desired then uncomment the variable appendices in this section and set the appropriate OpenMP compiler flags for the \texttt{CCFLAGS}, \texttt{F77FLAGS}, and \texttt{F90FLAGS} variables.
+
+The next section of \texttt{make.inc} is for MPI settings.  If the MPI version of LMie is desired then an MPI implementation should be made available.  The variable \texttt{MPI\_INCDIR} should be set to the path to the directory with the MPI include files, the variable \texttt{MPI\_LIBDIR} should be set to the path to the directory with the MPI library files, and the variable \texttt{MPI\_LINK} should be set to the appropriate compiler link flag.  The default settings are for a \href{http://www.mcs.anl.gov/research/projects/mpich2/}{MPICH2} installation located at \texttt{\${HOME}/opt/mpich2/}.
+
+Once the proper settings have been set in \texttt{make.inc} LMie may be compiled by executing
+\begin{verbatim}
+     make
+\end{verbatim}
+and for the MPI version of LMie
+\begin{verbatim}
+     make mpi
+\end{verbatim}
+
+
+\xdocsubsection{Visual Studio}
+\label{building_and_using_lmie_building_lmie_visual_studio}
+
+LMie may also be built on Windows using Visual Studio and, if the Fortran 77 and/or 90 interfaces are desired, with Intel's Visual Fortran Composer XE for Windows.  Supported versions of Visual Studio are 2005, 2008, and 2010.   Depending on which version is being used the LMie Visual Studio solution may be loaded from one of the following solution (\texttt{.sln}) files relative to the LMie base directory:
+\begin{verbatim}
+     msvs_2005/lmie.sln
+     msvs_2008/lmie.sln
+     msvs_2010/lmie.sln
+\end{verbatim}
+
+
+\xdocsection{Using LMie in your code}
+\label{building_and_using_lmie_using_lmie_in_your_code}
+
+To use LMie in your own code you have to include/use the appropriate header/module file and link with the appropriate LMie library files and any required external library files.
+
+
+\xdocsubsection{C/C++}
+\label{building_and_using_lmie_using_lmie_in_your_code_c_cpp}
+
+The C interface is part of the core library in the \texttt{src/} directory.  To use the C interface your code must include the following header file:
+\begin{verbatim}
+     src/lmie_interface.h
+\end{verbatim}
+and must link with the following libraries:
+\begin{verbatim}
+     src/liblmie.a
+     misc/liblmie_misc.a
+\end{verbatim}
+or when using Visual Studio the following libraries:
+\begin{verbatim}
+     $(SolutionDir)/$(ConfigurationName)/liblmie.lib
+     $(SolutionDir)/$(ConfigurationName)/liblmie_misc.lib
+\end{verbatim}
+where the variable \texttt{\$(SolutionDir)} is \texttt{msvs\_2005}, \texttt{msvs\_2008}, or \texttt{msvs\_2010} and the variable \texttt{\$(ConfigurationName)} is \texttt{Debug} or \texttt{Release}.
+
+For example, if one has C code in a file named \texttt{my\_code.c}, includes the LMie C interface header file with
+\begin{verbatim}
+     #include <lmie_interface.h>
+\end{verbatim}
+and uses GCC to compile and link the code the command may look like this
+\begin{verbatim}
+     gcc -O2 my_code.c -I$(LMIE_HOME)/src -L$(LMIE_HOME)/src -L$(LMIE_HOME)/misc \
+         -llmie -llmie_misc
+\end{verbatim}
+where the variable \texttt{\$(LMIE\_HOME)} is the location of the LMie base directory.  For more information, take a look at the build details for the C interface example program \texttt{examples/example\_c.c}.
+
+
+\xdocsubsection{Fortran 77}
+\label{building_and_using_lmie_using_lmie_in_your_code_fortran_77}
+
+To use the Fortran 77 interface your code must include the following file:
+\begin{verbatim}
+     interfaces/lmie_int_f77.inc
+\end{verbatim}
+and must link with the following libraries:
+\begin{verbatim}
+     src/liblmie.a
+     misc/liblmie_misc.a
+     interfaces/liblmie_interfaces.a
+\end{verbatim}
+or when using Visual Studio the following libraries:
+\begin{verbatim}
+     $(SolutionDir)/$(ConfigurationName)/liblmie.lib
+     $(SolutionDir)/$(ConfigurationName)/liblmie_misc.lib
+     $(SolutionDir)/$(ConfigurationName)/liblmie_interfaces.lib
+     $(SolutionDir)/$(ConfigurationName)/liblmie_interfaces_f.lib
+\end{verbatim}
+where the variable \texttt{\$(SolutionDir)} is \texttt{msvs\_2005}, \texttt{msvs\_2008}, or \texttt{msvs\_2010} and the variable \texttt{\$(ConfigurationName)} is \texttt{Debug} or \texttt{Release}.  For more information, take a look at the build details for the Fortran 77 interface example program \texttt{examples/example\_f77.f}.
+
+
+\xdocsubsection{Fortran 90}
+\label{building_and_using_lmie_using_lmie_in_your_code_fortran_90}
+
+To use the Fortran 90 interface your code must \texttt{USE} the \texttt{LMIE\_INT\_F90} module
+and must link with the following libraries:
+\begin{verbatim}
+     src/liblmie.a
+     misc/liblmie_misc.a
+     interfaces/liblmie_interfaces.a
+\end{verbatim}
+or when using Visual Studio the following libraries:
+\begin{verbatim}
+     $(SolutionDir)/$(ConfigurationName)/liblmie.lib
+     $(SolutionDir)/$(ConfigurationName)/liblmie_misc.lib
+     $(SolutionDir)/$(ConfigurationName)/liblmie_interfaces.lib
+     $(SolutionDir)/$(ConfigurationName)/liblmie_interfaces_f.lib
+\end{verbatim}
+where the variable \texttt{\$(SolutionDir)} is \texttt{msvs\_2005}, \texttt{msvs\_2008}, or \texttt{msvs\_2010} and the variable \texttt{\$(ConfigurationName)} is \texttt{Debug} or \texttt{Release}.  For more information, take a look at the build details for the Fortran 90 interface example program \texttt{examples/example\_f90.f90}.
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocchapter{LMie Inputs}
+\label{lmie_inputs}
+
+This section gives a detailed description of LMie's inputs independent of the details of the input interfaces.  See the appropriate interface section for details on actually supplying inputs to LMie.
+
+\begin{description}
+
+\xlabel{calc_pf}
+\item[\texttt{calc\_pf}] \hfill \\
+Flag indicating whether or not to compute the elements of the scattering phase matrix.
+
+\xlabel{calc_gc}
+\item[\texttt{calc\_gc}] \hfill \\
+Flag indicating whether or not to compute the coefficients for the expansion of the scattering phase matrix in terms of generalized spherical functions.
+
+\xlabel{calc_lc}
+\item[\texttt{calc\_lc}] \hfill \\
+Flag indicating whether or not to compute the coefficients for the expansion of the scattering phase matrix in terms of Legendre polynomials.
+
+\xlabel{dist_type}
+\item[\texttt{dist\_type}] \hfill \\
+The particle size distribution to use.  Currently seven size distributions are supported.  Distributions 2 - 6 are given here as in chapter 5 of \citet{mishchenko_michael_i_2002b}
+\begin{enumerate}
+\item mono:
+\begin{equation}
+n(r) = 1
+\label{eq:lmie_inputs_mono_dist}
+\end{equation}
+\item gamma:
+\begin{equation}
+\hspace*{-0.5in} n(r) = C r^{(1 - 3b) / b} \exp \left(-\frac{r}{ab}\right), b \in (0, 0.5)
+\label{eq:lmie_inputs_gamma_dist}
+\end{equation}
+\item modified gamma:
+\begin{equation}
+\hspace*{-0.5in} n(r) = C r^{\alpha} \exp\left(-\frac{\alpha r^{\gamma}}{\gamma r ^{\gamma}_{c}}\right)
+\label{eq:lmie_inputs_modified_gamma_dist}
+\end{equation}
+\item power law:
+\begin{equation}
+\hspace*{-0.5in} n(r) = \left\{
+\begin{array}{ll}
+Cr^{-3} & \mbox{if $r_{1} \le r \le r_{2}$} \\
+0       & \mbox{otherwise}
+\end{array}
+\right.
+\label{eq:lmie_inputs_power_law_dist}
+\end{equation}
+\item modified power law:
+\begin{equation}
+\hspace*{-0.5in} n(r) = \left\{
+\begin{array}{ll}
+C                   & \mbox{if $0 \le r \le r_{1}$} \\
+C(r/r_{1})^{\alpha} & \mbox{if $r_{1} \le r \le r_{2}$} \\
+0                   & \mbox{if $r_{2} \le r$}
+\end{array}
+\right.
+\label{eq:lmie_inputs_modified_power_law_dist}
+\end{equation}
+\item log normal:
+\begin{equation}
+\hspace*{-0.5in} n(r) = C r^{-1} \exp\left[-\frac{(\ln r - \ln r_{g})^{2}}{2 \ln^{2}\sigma_{g}}\right]
+\label{eq:lmie_inputs_log_normal_dist}
+\end{equation}
+\item modified bimodal log normal:
+\begin{equation}
+\hspace*{-0.5in} n(r) = C r^{-4} \left\{\exp\left[-\frac{(\ln r - \ln r_{g1})^{2}}{2 \ln^{2}\sigma_{g1}}\right] + \gamma \exp\left[-\frac{(\ln r - \ln r_{g2})^{2}}{2 \ln^{2}\sigma_{g2}}\right]\right\}
+\label{eq:lmie_inputs_modified_bimodal_log_normal_dist}
+\end{equation}
+\end{enumerate}
+where $C$ is the normalization constant, $r$ is particle radius, $r_{1}$ and $r_{2}$ are the minimum and maximum radii in the size distribution (input parameters \xref{r1_r2}{\texttt{r1}} and \xref{r1_r2}{\texttt{r2}}), and the other size distribution parameters are input via inputs \xref{a1_a5}{\texttt{a1} - \texttt{a5}}.
+
+\xlabel{n_int1}
+\item[\texttt{n\_int1}] \hfill \\
+The number of subintervals from 0 to $r_{1}$ for the integration of size distribution.  Only used for the power law size distribution.
+
+\xlabel{n_int2}
+\item[\texttt{n\_int2}] \hfill \\
+The number of subintervals from $r_{1}$ to $r_{2}$ for the integration of size distribution.
+
+\xlabel{n_quad}
+\item[\texttt{n\_quad}] \hfill \\
+The number of quadrature points to use per subinterval for the integration of size distribution.
+
+\xlabel{n_angles}
+\item[\texttt{n\_angles}] \hfill \\
+The number of scattering angles at which to compute the elements of the scattering matrix.  Only used if input flag \xref{calc_pf}{\texttt{calc\_pf}} is set.
+
+\xlabel{n_derivs}
+\item[\texttt{n\_derivs}] \hfill \\
+The number of derivatives to be computed.
+
+\xlabel{lambda}
+\item[\texttt{lambda}] \hfill \\
+Wavelength of incident radiation, the units of which must be consistent with the input size distribution parameters \xref{a1_a5}{\texttt{a1} - \texttt{a5}}.
+
+\xlabel{mr}
+\item[\texttt{mr}] \hfill \\
+The real part of the complex index of refraction of the particle medium.
+
+\xlabel{mi}
+\item[\texttt{mi}] \hfill \\
+The imaginary part of the complex index of refraction of the particle medium.  Must be positive.
+
+\xlabel{a1_a5}
+\item[\texttt{a1} - \texttt{a5}] \hfill \\
+Size distribution parameters, the units of which must be consistent with the wavelength of incident radiation \xref{lambda}{\texttt{lambda}}.  The number of parameters used and their definition depend on the size distribution selected by input \xref{dist_type}{\texttt{dist\_type}}.  The unused parameters are ignored.
+\begin{enumerate}
+\item mono:
+\begin{indentall}
+\(
+\texttt{a1} = r
+\)
+\end{indentall}
+\item gamma:
+\begin{indentall}
+\(
+\texttt{a1} = a \\
+\texttt{a2} = b
+\)
+\end{indentall}
+\item modified gamma:
+\begin{indentall}
+\(
+\texttt{a1} = \alpha \\
+\texttt{a2} = r_{c} \\
+\texttt{a3} = \gamma
+\)
+\end{indentall}
+\item power law:
+\begin{indentall}
+\(
+\texttt{a1} = r_{\mathrm{eff}} \\
+\texttt{a2} = v_{\mathrm{eff}}
+\)
+\end{indentall}
+\item modified power law:
+\begin{indentall}
+\(
+\texttt{a1} = \alpha
+\)
+\end{indentall}
+\item log normal:
+\begin{indentall}
+\(
+\texttt{a1} = r_{g} \\
+\texttt{a2} = (\ln \sigma_{g})^{2}
+\)
+\end{indentall}
+\item modified bimodal log normal:
+\begin{indentall}
+\(
+\texttt{a1} = r_{g,1} \\
+\texttt{a2} = (\ln \sigma_{g,1})^{2} \\
+\texttt{a3} = r_{g,2} \\
+\texttt{a4} = (\ln \sigma_{g,2})^{2} \\
+\texttt{a5} = \gamma
+\)
+\end{indentall}
+\end{enumerate}
+
+\xlabel{r1_r2}
+\item[\texttt{r1}, \texttt{r2}] \hfill \\
+Minimum and maximum radii ($r_{1}$ and $r_{2}$) in the size distribution.  In theory, \texttt{r1} and \texttt{r2} should be equal to zero and infinity, respectively.  In practice, the user should extend their range until the calculated scattering characteristics converge to within a prescribed numerical accuracy.  Unused for the mono (disperse) and power law size distributions.
+
+\xlabel{accuracy}
+\item[\texttt{accuracy}] \hfill \\
+The numerical accuracy at which to compute the coefficients for the expansion of the scattering matrix in terms of generalized spherical functions (flag \xref{calc_gc}{\texttt{calc\_gc}}) and/or Legendre polynomials (flag \xref{calc_lc}{\texttt{calc\_lc}}).
+
+\xlabel{linearized_inputs}
+\item[\texttt{lambda\_l}, \texttt{mr\_l}, \texttt{mi\_l}, \texttt{a1\_l} - \texttt{a5\_l}, \texttt{r1\_l}, \texttt{r2\_l}] \hfill \\
+Linearized inputs indicated by a ``\texttt{\_l}'' appended to the name for the associated input base value.  These inputs are one dimensional arrays of size \xref{n_derivs}{\texttt{n\_derivs}} where each element is associated with one of \xref{n_derivs}{\texttt{n\_derivs}} derivatives.  As a simple example, if we have a log normal size distribution and we are interested in derivatives with respect to $m_{r}$, $m_{i}$, $r_{g}$, and $(\ln \sigma_{g})^{2}$, in that order, for a total of 4 derivatives, the inputs would be set as
+\begin{indentall}
+\(
+\begin{array}{l@{\hspace{.25em}}c@{\hspace{.25em}}l}
+\texttt{lambda\_l} &=& \{0, 0, 0, 0\} \\
+\texttt{mr\_l}     &=& \{1, 0, 0, 0\} \\
+\texttt{mi\_l}     &=& \{0, 1, 0, 0\} \\
+\texttt{a1\_l}     &=& \{0, 0, 1, 0\} \\
+\texttt{a2\_l}     &=& \{0, 0, 0, 1\} \\
+\texttt{r1\_l}     &=& \{0, 0, 0, 0\} \\
+\texttt{r2\_l}     &=& \{0, 0, 0, 0\}
+\end{array}
+\)
+\end{indentall}
+More complex inputs, with values other than unity and where more than one linearized input is set to nonzero for a particular derivative index, are possible if one has derivatives of the inputs with respect to parameters further up the chain and is interested in Mie results with respect to these parameters.
+
+\end{description}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocchapter{LMie Outputs}
+\label{lmie_outputs}
+
+This section gives a detailed description of LMie's outputs independent of the details of the output interfaces.  See the appropriate interface section for details on actually obtaining outputs from LMie.
+
+\begin{description}
+
+\xlabel{r21_r22}
+\item[\texttt{r21}, \texttt{r22}] \hfill \\
+The actual minimum and maximum radii in the size distribution.  Same as the inputs \xref{r1_r2}{\texttt{r1}} and \xref{r1_r2}{\texttt{r2}} for all but the mono (disperse) and power law size distributions.
+
+\xlabel{norm}
+\item[\texttt{norm}] \hfill \\
+Normalization constant $C$ of the size distribution.
+
+\xlabel{reff}
+\item[\texttt{reff}] \hfill \\
+Effective radius of the size distribution:
+\begin{equation}
+r_{\mathrm{eff}} = \frac{1}{G_{\mathrm{avg}}} \int^{r_2}_{r_{1}} n(r) \pi r^{2} dr,
+\label{eq:lmie_outputs_reff}
+\end{equation}
+where $G_{\mathrm{avg}}$ is defined under input \xref{gavg}{\texttt{gavg}}.
+
+\xlabel{veff}
+\item[\texttt{veff}] \hfill \\
+Effective variance of the size distribution:
+\begin{equation}
+v_{\mathrm{eff}} = \frac{1}{G_{\mathrm{avg}} r^{2}_{\mathrm{eff}}} \int^{r_2}_{r_{1}} n(r) (r - r_{\mathrm{eff}})^{2} \pi r^{2} dr,
+\label{eq:lmie_outputs_veff}
+\end{equation}
+where $G_{\mathrm{avg}}$ is defined under input \xref{gavg}{\texttt{gavg}}.
+
+\xlabel{gavg}
+\item[\texttt{gavg}] \hfill \\
+The average projected area per particle of the size distribution:
+\begin{equation}
+G_{\mathrm{avg}} = \int^{r_2}_{r_{1}} n(r) \pi r^{2} dr.
+\label{eq:lmie_outputs_effective_gavg}
+\end{equation}
+
+\xlabel{vavg}
+\item[\texttt{vavg}] \hfill \\
+The average volume per particle of the size distribution.
+\begin{equation}
+V_{\mathrm{avg}} = \int^{r_2}_{r_{1}} n(r) \frac{4}{3} \pi r^{3} dr.
+\label{eq:lmie_outputs_vavg}
+\end{equation}
+
+\xlabel{ravg}
+\item[\texttt{ravg}] \hfill \\
+The average radius of the size distribution:
+\begin{equation}
+r_{\mathrm{avg}} = \int^{r_2}_{r_{1}} n(r) r dr.
+\label{eq:lmie_outputs_ravg}
+\end{equation}
+
+\xlabel{rvw}
+\item[\texttt{rvw}] \hfill \\
+The volume-weighted average radius of the size distribution:
+\begin{equation}
+r_{\mathrm{vwa}} = \int^{r_2}_{r_{1}} n(r) r \frac{4}{3} \pi r_{3} dr.
+\label{eq:lmie_outputs_rvw}
+\end{equation}
+
+\xlabel{cext}
+\item[\texttt{cext}] \hfill \\
+Ensemble averaged extinction cross section per particle.
+
+\xlabel{csca}
+\item[\texttt{csca}] \hfill \\
+Ensemble averaged scattering cross section per particle.
+
+\xlabel{cbak}
+\item[\texttt{cbak}] \hfill \\
+Ensemble averaged backscattering cross section per particle.
+
+\xlabel{g}
+\item[\texttt{g}] \hfill \\
+Ensemble averaged asymmetry factor.
+
+\xlabel{theta}
+\item[\texttt{theta}] \hfill \\
+Angles at which the elements of the ensemble averaged scattering phase matrix are computed as an array of size \xref{n_angles}{\texttt{n\_angles}}.  Only valid if the input flag \xref{calc_pf}{\texttt{calc\_pf}} is set.
+
+\xlabel{pf}
+\item[\texttt{pf}] \hfill \\
+Elements of the ensemble averaged scattering phase matrix at the angles indicated by output \xref{theta}{\texttt{theta}} as a ($6 \times \xref{n_angles}{\texttt{n\_angles}}$) array.  Only valid if the input flag \xref{calc_pf}{\texttt{calc\_pf}} is set.
+
+The scattering phase matrix has the form appropriate for a macroscopically isotropic and mirror symmetric scattering medium given by
+\begin{equation}
+\mathbf{F}(\Theta) =
+\left[
+\begin{array}{cccc}
+a_{1}(\Theta) & b_{1}(\Theta) & 0 & 0 \\
+b_{1}(\Theta) & a_{2}(\Theta) & 0 & 0 \\
+0 & 0 & a_{3}(\Theta) & b_{2}(\Theta) \\
+0 & 0 & -b_{2}(\Theta) & a_{4}(\Theta)
+\end{array}
+\right],
+\label{eq:lmie_outputs_pf_f}
+\end{equation}
+where $a_{1}(\Theta)$ is the scattering phase function.  For the case of homogeneous isotropic spheres $a_{1}(\Theta) = a_{2}(\Theta)$ and $a_{3}(\Theta) = a_{4}(\Theta)$ but for compatibility reasons the output is for all six elements.  The elements map to the output array \texttt{pf} (in C syntax) as 
+\begin{indentall}
+\(
+\begin{array}{l@{\hspace{.25em}}c@{\hspace{.25em}}l}
+a_{1}(\Theta_{i}) &=& \texttt{pf[0][i]} \\
+a_{2}(\Theta_{i}) &=& \texttt{pf[1][i]} \\
+a_{3}(\Theta_{i}) &=& \texttt{pf[2][i]} \\
+a_{4}(\Theta_{i}) &=& \texttt{pf[3][i]} \\
+b_{1}(\Theta_{i}) &=& \texttt{pf[4][i]} \\
+b_{2}(\Theta_{i}) &=& \texttt{pf[5][i]}
+\end{array}
+\)
+\end{indentall}
+where
+\begin{indentall}
+\(
+\Theta_{i} = \xref{theta}{\texttt{theta}}\texttt{[i]}
+\)
+\end{indentall}
+and $0 \le \texttt{i} < \xref{n_angles}{\texttt{n\_angles}}$.
+
+\xlabel{n_coef}
+\item[\texttt{n\_coef}] \hfill \\
+The number of expansion coefficients (and associated derivatives) output in the \xref{gc}{\texttt{gc}} and \xref{lc}{\texttt{lc}} arrays, and when derivatives are to be computed, the \xref{linearized_outputs2}{\texttt{gc\_l}} and \xref{linearized_outputs2}{\texttt{lc\_l}} arrays.  This is the number of coefficients required to accurately represent the scattering phase matrix $\mathbf{F}(\Theta)$ to the accuracy given as the input \xref{accuracy}{\texttt{accuracy}}.
+
+\xlabel{gc}
+\item[\texttt{gc}] \hfill \\
+Coefficients for the expansion of the ensemble averaged scattering phase matrix (equation~\ref{eq:lmie_outputs_pf_f}) in terms of generalized spherical functions as a ($6 \times \xref{n_coef}{\texttt{n\_coef}}$) array.  Only valid if the input flag \xref{calc_gc}{\texttt{calc\_gc}} is set.
+
+The expansion has the form given by
+\begin{eqnarray*}
+a_{1}(\Theta) &=& \sum^{N}_{l = 0} \beta_{l} P^{l}_{0,0}(\cos{\Theta}), \\
+a_{2}(\Theta) + a_{3}(\Theta) &=& \sum^{N}_{l = 2} (\alpha_{l} + \zeta_{l}) P^{l}_{2,2}(\cos{\Theta}), \\
+a_{3}(\Theta) - a_{3}(\Theta) &=& \sum^{N}_{l = 2} (\alpha_{l} - \zeta_{l}) P^{l}_{2,-2}(\cos{\Theta}), \\
+a_{4}(\Theta) &=& \sum^{N}_{l = 0} \delta_{l} P^{l}_{0,0}(\cos{\Theta}), \\
+b_{1}(\Theta) &=& \sum^{N}_{l = 0} \gamma_{l} P^{l}_{0,2}(\cos{\Theta}), \\
+b_{2}(\Theta) &=& \sum^{N}_{l = 0} \varepsilon_{l} P^{l}_{0,2}(\cos{\Theta}),
+\end{eqnarray*}
+where $P^{l}_{m,n}(\cos{\Theta})$ are generalized spherical functions.  It is worth noting that $a_{1}(\Theta)$ is equal to the so called scattering phase function $P(\cos{\Theta})$ and the generalized spherical function $P^{l}_{0,0}(\cos{\Theta})$ is equal to the Legendre polynomial $P_{l}(\cos{\Theta})$.  The expansion coefficients are the so ``Greek constants'' \citep{siewert_c_e_1982a} of the matrix
+\begin{equation}
+\mathbf{B}_{l} =
+\left[
+\begin{array}{cccc}
+\beta_{l} & \gamma_{l} & 0 & 0 \\
+\gamma_{l} & \alpha_{l} & 0 & 0 \\
+0 & 0 & \zeta_{l} & -\varepsilon_{l} \\
+0 & 0 & \varepsilon_{l} & \delta_{l}
+\end{array}
+\right],
+\label{eq:lmie_outputs_gc_b}
+\end{equation}
+which is a common form of input for many vector radiative transfer models.  The expansion coefficients map to the output array \texttt{gc} (in C syntax) as 
+\begin{indentall}
+\(
+\begin{array}{l@{\hspace{.25em}}c@{\hspace{.25em}}r}
+\beta_{l}       &=& \texttt{gc[0][l]} \\
+\alpha_{l}      &=& \texttt{gc[1][l]} \\
+\zeta_{l}       &=& \texttt{gc[2][l]} \\
+\delta_{l}      &=& \texttt{gc[3][l]} \\
+\gamma_{l}      &=& -\texttt{gc[4][l]} \\
+\varepsilon_{l} &=& -\texttt{gc[5][l]}
+\end{array}
+\)
+\end{indentall}
+where $0 \le \texttt{l} < \xref{n_coef}{\texttt{n\_coef}}$.
+
+\xlabel{lc}
+\item[\texttt{lc}] \hfill \\
+Coefficients for the expansion of the ensemble averaged scattering phase matrix (equation~\ref{eq:lmie_outputs_pf_f}) in terms of Legendre polynomials as a ($6 \times \xref{n_coef}{\texttt{n\_coef}}$) array.  Only valid if the input flag \xref{calc_lc}{\texttt{calc\_lc}} is set.
+
+The expansion has the form given by
+\begin{eqnarray*}
+a_{1}(\Theta) &=& \sum^{N}_{l = 0} \beta_{1,l} P_{l}(\cos{\Theta}), \\
+a_{2}(\Theta) &=& \sum^{N}_{l = 0} \beta_{2,l} P_{l}(\cos{\Theta}), \\
+a_{3}(\Theta) &=& \sum^{N}_{l = 0} \beta_{3,l} P_{l}(\cos{\Theta}), \\
+a_{4}(\Theta) &=& \sum^{N}_{l = 0} \beta_{4,l} P_{l}(\cos{\Theta}), \\
+b_{1}(\Theta) &=& \sum^{N}_{l = 0} \beta_{5,l} P_{l}(\cos{\Theta}), \\
+b_{2}(\Theta) &=& \sum^{N}_{l = 0} \beta_{6,l} P_{l}(\cos{\Theta}),
+\end{eqnarray*}
+where $P_{l}(\cos{\Theta})$ are Legendre polynomials of degree $l$.  It is worth noting that $a_{1}(\Theta)$ is equal to the so called scattering phase function $P(\cos{\Theta})$.  The expansion coefficients map to the output array \texttt{lc} (in C syntax) as 
+\begin{indentall}
+\(
+\begin{array}{l@{\hspace{.25em}}c@{\hspace{.25em}}l}
+\beta_{1,l} &=& \texttt{lc[0][l]} \\
+\beta_{2,l} &=& \texttt{lc[1][l]} \\
+\beta_{3,l} &=& \texttt{lc[2][l]} \\
+\beta_{4,l} &=& \texttt{lc[3][l]} \\
+\beta_{5,l} &=& \texttt{lc[4][l]} \\
+\beta_{6,l} &=& \texttt{lc[5][l]}
+\end{array}
+\)
+\end{indentall}
+where $0 \le \texttt{l} < \xref{n_coef}{\texttt{n\_coef}}$.
+
+
+\xlabel{linearized_outputs}
+\item[\texttt{r21\_l}, \texttt{r22\_l}, \texttt{reff\_l}, \texttt{veff\_l}, \texttt{gavg\_l}, \texttt{vavg\_l}, \texttt{ravg\_l}, \texttt{rvw\_l}, \texttt{cext\_l}, \texttt{csca\_l}, \texttt{cbak\_l}, \texttt{g\_l}] \hfill \\
+Linearized outputs indicated by a ``\texttt{\_l}'' appended to the name for the associated output base value.  These outputs are one dimensional arrays of size \xref{n_derivs}{\texttt{n\_derivs}} where each element is associated with one of \xref{n_derivs}{\texttt{n\_derivs}} derivatives.
+
+\xlabel{linearized_outputs2}
+\item[\texttt{pf\_l}, \texttt{gc\_l}, \texttt{lc\_l}] \hfill \\
+Linearized outputs indicated by a ``\texttt{\_l}'' appended to the name for the associated output base value.  These outputs are three dimensional arrays of size ($\xref{n_derivs}{\texttt{n\_derivs}} \times 6 \times \xref{n_angles}{\texttt{n\_angles}}$) for \texttt{pf\_l} and ($\xref{n_derivs}{\texttt{n\_derivs}} \times 6 \times \xref{n_coef}{\texttt{n\_coef}}$) for \texttt{gc\_l} and \texttt{lc\_l}, where each subarray of the first dimension is associated with one of \xref{n_derivs}{\texttt{n\_derivs}} derivatives.
+
+\end{description}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocchapter{LMie C Interface}
+\label{lmie_c_interface_interface}
+
+The LMie C interface is made available by including \texttt{src/lmie\_interface.h} in your code.  It consists of some enumeration constants, input and output structures as typedefs, and functions for managing memory used in the structures and to call the actual Mie scattering algorithm.
+
+\noindent
+In a typical usage the steps taken to use LMie will be:
+\begin{enumerate}
+\compresslist
+\item Allocate memory used by the \source{lmie\_in\_data} input structure with \xref{lmie_in_alloc}{\sourcenamefunc{lmie\_in\_alloc}}.
+\item If derivatives are to be computed, zero out all the linearized inputs in the \source{lmie\_in\_data} input structure with \xref{lmie_in_zero_derivs}{\sourcenamefunc{lmie\_\-in\_\-zero\_\-derivs}}.
+\item Set the input values in the \source{lmie\_in\_data} input structure including any nonzero linearized values when derivatives are to be computed
+\item Call \xref{lmie_solution}{\sourcenamefunc{lmie\_solution}} to calculate the Mie scattering results.
+\item Read/use the output values from the \source{lmie\_out\_data} output structure.
+\item Free memory allocated to the \source{lmie\_out\_data} output structure with \xref{lmie_out_free}{\sourcenamefunc{lmie\_out\_free}}.
+\item If another set of results is required and the number of derivatives has not changed loop back to step 2.
+\item Free memory allocated to the \source{lmie\_in\_data} input structure with \xref{lmie_in_free}{\sourcenamefunc{lmie\_in\_free}}
+\end{enumerate}
+
+\noindent
+See \texttt{examples/example\_c.c} for an actual example of LMie usage in C.
+
+
+\xdocsection{Size distributions}
+\label{lmie_c_interface_size_distributions}
+
+Size distributions are indicated by the following enumeration constants:
+\begin{indentall}
+SIZE\_DIST\_MONO \\
+SIZE\_DIST\_GAMMA \\
+SIZE\_DIST\_MODIFIED\_GAMMA \\
+SIZE\_DIST\_POWER\_LAW \\
+SIZE\_DIST\_MODIFIED\_POWER\_LAW \\
+SIZE\_DIST\_LOG\_NORMAL \\
+SIZE\_DIST\_MODIFIED\_BIMODAL\_LOG\_NORMAL \\
+\end{indentall}
+
+
+\xdocsection{Input and output structures}
+\label{lmie_c_interface_input_and_output_structures}
+
+The LMie input structure typedef is: \\
+\structure{lmie\_in\_data}{
+\textit{int calc\_gc;} \\
+\textit{int calc\_lc;} \\
+\textit{int calc\_pf;} \\
+\textit{enum size\_dist\_type dist\_type;} \\
+\textit{int n\_int1;} \\
+\textit{int n\_int2;} \\
+\textit{int n\_quad;} \\
+\textit{int n\_angles;} \\
+\textit{int n\_derivs;} \\
+\textit{double lambda;} \\
+\textit{double mr;} \\
+\textit{double mi;} \\
+\textit{double a1;} \\
+\textit{double b1;} \\
+\textit{double a2;} \\
+\textit{double b2;} \\
+\textit{double gamma;} \\
+\textit{double r1;} \\
+\textit{double r2;} \\
+\textit{double *lambda\_l;} \\
+\textit{double *mr\_l;} \\
+\textit{double *mi\_l;} \\
+\textit{double *a1\_l;} \\
+\textit{double *b1\_l;} \\
+\textit{double *a2\_l;} \\
+\textit{double *b2\_l;} \\
+\textit{double *gamma\_l;} \\
+\textit{double *r1\_l;} \\
+\textit{double *r2\_l;} \\
+\textit{double accuracy;}
+}
+\vspace{\baselineskip}
+
+\noindent
+The LMie output structure typedef is: \\
+\structure{lmie\_in\_data}{
+\textit{int n\_coef;} \\
+\textit{double r1;} \\
+\textit{double r2;} \\
+\textit{double norm;} \\
+\textit{double reff;} \\
+\textit{double veff;} \\
+\textit{double gavg;} \\
+\textit{double vavg;} \\
+\textit{double ravg;} \\
+\textit{double rvw;} \\
+\textit{double cext;} \\
+\textit{double csca;} \\
+\textit{double cbak;} \\
+\textit{double g;} \\
+\textit{double **gc;} \\
+\textit{double **lc;} \\
+\textit{double *theta;} \\
+\textit{double **pf;} \\
+\textit{double *r1\_l;} \\
+\textit{double *r2\_l;} \\
+\textit{double *norm\_l;} \\
+\textit{double *reff\_l;} \\
+\textit{double *veff\_l;} \\
+\textit{double *gavg\_l;} \\
+\textit{double *vavg\_l;} \\
+\textit{double *ravg\_l;} \\
+\textit{double *rvw\_l;} \\
+\textit{double *cext\_l;} \\
+\textit{double *csca\_l;} \\
+\textit{double *cbak\_l;} \\
+\textit{double *g\_l;} \\
+\textit{double ***gc\_l;} \\
+\textit{double ***lc\_l;} \\
+\textit{double ***pf\_l;}
+}
+
+
+\xdocsection{Function interface}
+\label{lmie_c_interface_function_interface}
+
+\begin{prototype}{lmie_in_alloc}
+\proto{\texttt{int \textbf{lmie\_in\_alloc}(\textit{lmie\_in\_data~*\textbf{in}, int \textbf{n\_derivs}})}}
+\end{prototype}
+
+\funcdesc{
+Allocate memory used by an \source{lmie\_in\_data} input structure.  This function should be called before populating an \source{lmie\_in\_data} input structure before the first call to \xref{lmie_solution}{\sourcenamefunc{lmie\_solution}}.  After calling this function all pointers within the \source{lmie\_in\_data} input structure may be used as valid arrays over subsequent calls to \xref{lmie_solution}{\sourcenamefunc{lmie\_solution}} as long as \sourcenamearg{n\_derivs} does not change.  Once use of the \source{lmie\_in\_data} input structure is finished \xref{lmie_in_free}{\sourcenamefunc{lmie\_in\_free}} must be called to free the allocated memory.
+}{
+\arg{in}       {an \source{lmie\_in\_data} input structure for which to allocate memory}
+\arg{n\_derivs}{the number of derivatives for which to allocate memory}
+}{
+Zero with successful completion or otherwise on error.
+}
+
+\begin{prototype}{lmie_in_free}
+\proto{\texttt{void \textbf{lmie\_in\_free}(\textit{lmie\_in\_data~*\textbf{in}, int \textbf{flag}})}}
+\end{prototype}
+
+\funcdesc{
+Free memory allocated to an \source{lmie\_\-in\_\-data} input structure by \xref{lmie_in_alloc}{\sourcenamefunc{lmie\_in\_alloc}}.  This function should be called after use of an \source{lmie\_\-in\_\-data} input structure is finished.
+}{
+\arg{in}  {an \source{lmie\_in\_data} input structure for which to free memory}
+\arg{flag}{zero if the number of derivatives is zero and nonzero otherwise}
+}{
+None.
+}
+
+
+\begin{prototype}{lmie_out_free}
+\proto{\texttt{void \textbf{lmie\_out\_free}(\textit{lmie\_out\_data~*\textbf{out}, int \textbf{flag}})}}
+\end{prototype}
+
+\funcdesc{
+Free memory allocated to an \source{lmie\_\-out\_\-data} output structure by \xref{lmie_solution}{\sourcenamefunc{lmie\_solution}}.  This function should be called after use of the output data within the \source{lmie\_\-out\_\-data} output structure is finished and before another call to \xref{lmie_solution}{\sourcenamefunc{lmie\_solution}} otherwise the allocated memory from the previous call will be leaked.
+}{
+\arg{out} {an \source{lmie\_out\_data} output structure for which to free memory}
+\arg{flag}{zero if the number of derivatives is zero and nonzero otherwise}
+}{
+None.
+}
+
+
+\begin{prototype}{lmie_in_zero_derivs}
+\proto{\texttt{void \textbf{lmie\_in\_zero\_derivs}(\textit{lmie\_in\_data~*\textbf{in}, int \textbf{n\_derivs}})}}
+\end{prototype}
+
+\funcdesc{
+Sets all the linearized inputs (derivatives) in an \source{lmie\_\-in\_\-data} input structure to zero.  This function is not necessary and is provided as convenience since in many cases most of the linearized inputs are set to zero.  This function must be called after a call to \xref{lmie_in_alloc}{\sourcenamefunc{lmie\_in\_alloc}}.
+}{
+\arg{in}{an \source{lmie\_in\_data} input structure for which to zero the linearized inputs}
+}{
+None.
+}
+
+
+\begin{prototype}{lmie_solution}
+\proto{\texttt{int \textbf{lmie\_solution}(\textit{lmie\_in\_data~*\textbf{in}, lmie\_out\_data~*\textbf{out}, int \textbf{alloc\_out}, int \textbf{verbose}, int \textbf{n\_threads}, int \textbf{use\_mpi}})}}
+\end{prototype}
+
+\funcdesc{
+Run the actual Mie scattering algorithm using the inputs in the supplied input structure and put the outputs in the supplied output structure.
+}{
+\arg{in}        {the \source{lmie\_in\_data} input structure}
+\arg{out}       {the \source{lmie\_out\_data} output structure}
+\arg{alloc\_out}{Flag indicating whether or not memory should be allocated for the \source{lmie\_out\_data} output structure.  This should only be set to ``false'' if enough memory has already been allocated for the \source{lmie\_out\_data} output structure, either by the user or from a subsequent call to \sourcenamefunc{lmie\_solution}.  The amount of memory used is dependent on the input value \texttt{r2} so that an initial call to \sourcenamefunc{lmie\_solution} using a maximum value for \texttt{r2} will allocate enough memory for subsequent calls with a lesser or equal value of \texttt{r2}.}
+\arg{n\_threads}{Number of threads to use.  For minimum run times the number of threads should be set to the number of cores available on the machine being used.}
+\arg{use\_mpi}  {A flag indicating whether or not to use MPI.  This requires the execution of two or more separate calling processes using the appropriate MPI execution program.  MPI parallelization is above the threaded parallelization in which case \sourcenamearg{n\_threads} indicates the number of threads to use \emph{per} MPI process.}
+\arg{verbose}   {A flag indicating whether or not to print information useful for debugging.  Currently only information useful for debugging calls using MPI is printed.}
+}{
+Zero with successful completion or otherwise on error.
+}
+
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocsection{Example C program using LMie}
+\label{lmie_c_interface_example_c_program_using_lmie}
+
+An example program using the C interface is at
+\begin{verbatim}
+     examples/example_c.c
+\end{verbatim}
+and when the LMie code is compiled properly the C example program will be compiled as
+\begin{verbatim}
+     examples/example_c
+\end{verbatim}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocchapter{LMie Fortran 77 Interface}
+\label{lmie_fortran_77_interface_interface}
+
+\xdocsection{Size distributions}
+\label{lmie_fortran_77_interface_size_distributions}
+
+\xdocsection{Function interface}
+\label{lmie_fortran_77_interface_function_interface}
+
+\xdocsection{Example Fortran 77 program using LMie}
+\label{lmie_fortran_77_interface_example_fortran_77_program_using_lmie}
+
+An example program using the Fortran 77 interface is at
+\begin{verbatim}
+     examples/example_f77.f
+\end{verbatim}
+and when the LMie code is compiled properly the Fortran 77 example program will be compiled as
+\begin{verbatim}
+     examples/example_f77
+\end{verbatim}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocchapter{LMie Fortran 90 Interface}
+\label{lmie_fortran_90_interface_interface}
+
+\xdocsection{Size distributions}
+\label{lmie_fortran_90_interface_size_distributions}
+
+\xdocsection{Input and output structures}
+\label{lmie_fortran_90_interface_input_and_output_structures}
+
+\xdocsection{Function interface}
+\label{lmie_fortran_90_interface_function_interface}
+
+\xdocsection{Example Fortran 90 program using LMie}
+\label{lmie_fortran_90_interface_example_fortran_90_program_using_lmie}
+
+An example program using the Fortran 90 interface is at
+\begin{verbatim}
+     examples/example_f90.f90
+\end{verbatim}
+and when the LMie code is compiled properly the Fortran 90 example program will be compiled as
+\begin{verbatim}
+     examples/example_f90
+\end{verbatim}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\xdocchapter{LMie command line program: calllmie}
+\label{lmie_command_line_program_calllmie}
+
+\texttt{calllmie} is a command line program that takes inputs from the command line, runs LMie, and outputs results.
+
+\noindent
+The path to \texttt{calllmie} is 
+\begin{verbatim}
+     utils/calllmie
+\end{verbatim}
+or when using Visual Studio
+\begin{verbatim}
+     $(SolutionDir)/$(ConfigurationName)/calllmie.exe
+\end{verbatim}
+where the variable \texttt{\$(SolutionDir)} is \texttt{msvs\_2005}, \texttt{msvs\_2008}, or \texttt{msvs\_2010} and the variable \texttt{\$(ConfigurationName)} is \texttt{Debug} or \texttt{Release}.
+
+\noindent
+An example run of \texttt{calllmie} is contained in the following text file:
+\begin{verbatim}
+     examples/calllmie.txt
+\end{verbatim}
+Please see the text file for more details about the example run.  The \texttt{calllmie} input format for the command line and output format are outlined in the next two sections.
+
+
+\xdocsection{Calllmie input format}
+\label{lmie_command_line_program_calllmie_calllmie_input_format}
+
+
+\xdocsubsection{General flags}
+\label{lmie_command_line_program_calllmie_calllmie_input_format_general_flags}
+
+\begin{description}
+
+\xlabel{callmie_help}
+\item[\texttt{-help}] \hfill \\
+Print a message linking the user to this documentation and exit.
+
+\xlabel{callmie_n_threads}
+\item[\texttt{-n\_threads <n\_threads>}] \hfill \\
+The number of threads to use.  This is an optional flag with a default value of 1.
+
+%\xlabel{callmie_timing}
+%\item[\texttt{-timing <N>}] \hfill \\
+
+\xlabel{callmie_verbose}
+\item[\texttt{-verbose}] \hfill \\
+Print information useful for debugging.  Currently only information useful for debugging runs using MPI is printed.
+
+\xlabel{callmie_version}
+\item[\texttt{-version}] \hfill \\
+Print version information and exit.
+
+\end{description}
+
+
+\xdocsubsection{Input flags}
+\label{lmie_command_line_program_calllmie_calllmie_input_format_input_flags}
+
+\begin{description}
+
+\xlabel{callmie_accuracy}
+\item[\texttt{-accuracy <accuracy>}] \hfill \\
+Set the \xref{accuracy}{accuracy}.
+
+\xlabel{callmie_derivs}
+\item[\texttt{-derivs <n\_derivs>}] \hfill \\
+Turn on derivative output and set the number of derivatives to be calculated \xref{n_derivs}{n\_derivs}.
+
+\xlabel{callmie_dist}
+\item[\texttt{-dist <NAME> <a1> ...\ <a5> [r1] [r2]}] \hfill \\
+Set the size distribution name and the required input parameters \xref{a1_a5}{a1 - a5} and, if required, \xref{r1_r2}{r1} and \xref{r1_r2}{r2}.  The size distribution name NAME is the name of one of the \xref{dist_type}{supported size distributions} with underscores in place for spaces.  For example, if one had a log normal size distribution with a mean radius of 0.39${\mu}$m and a standard deviation of 2.0${\mu}$m ranging from 0.005 to 50${\mu}$m the flag and required parameters would be given as
+\begin{verbatim}
+     -dist log_normal 0.39 0.48 0.005 50.0
+\end{verbatim}
+where $(\ln 1.0)^{2} = 0.48$.
+
+\xlabel{callmie_dist}
+\item[\texttt{-dist\_l <a1\_l1,a2\_l2,...> ...\ <a5\_l1,a5\_l2,...> [r1\_l1,r1\_l2,...]\ [r2\_l1,r2\_l2,...]}] \hfill
+Set linearized parameters \xref{linearized_inputs}{a1\_l - a5\_l} and, if required \xref{linearized_inputs}{r1\_l} and \xref{linearized_inputs}{r2\_l}, for the size distribution given by the \texttt{-dist} flag.  Flag \texttt{-dist} must be given on the command line before \texttt{-dist\_l}.  Each argument is a comma-separated list (with no spaces) of values for each derivative.  For example, if one had a log normal size distribution and derivatives with respect to $r_{g}$, $(\ln \sigma_{g})^{2}$, $m_{r}$, and $m_{i}$, in that order, the flag and required arguments would be given as
+\begin{verbatim}
+     -dist log_normal 1.0,0.0,0.0,0.0 0.0,1.0,0.0,0.0 \
+                      0.0,0.0,0.0,0.0 0.0,0.0,0.0,0.0
+\end{verbatim}
+where each of the 4 lists have a length of 4.  This flag is only valid when \texttt{-derivs} is given and is optional with default values all equal to zero.
+
+\xlabel{callmie_lambda}
+\item[\texttt{-lambda <lambda>}] \hfill \\
+Set the wavelength of incident radiation \xref{lambda}{lambda}.
+
+\xlabel{callmie_lambda_l}
+\item[\texttt{-lambda\_l <lambda\_l\_1,lambda\_l\_2,...>}] \hfill \\
+Set the linearized wavelength of incident radiation \xref{linearized_inputs}{lambda\_l}.  This flag is only valid when \texttt{-derivs} is given and is optional with default values all equal to zero.
+
+\xlabel{callmie_m}
+\item[\texttt{-m <mr> <mi>}] \hfill \\
+Set the real (\xref{mr}{\texttt{mr}}) and imaginary (\xref{mi}{\texttt{mi}}) parts of the complex index of refraction of the particle medium.
+
+\xlabel{callmie_m_l}
+\item[\texttt{-m\_l <m\_r\_l1,m\_r\_l2,...> <m\_i\_l1,m\_i\_l2,...>}] \hfill \\
+Set the linearized real (\xref{mr}{\texttt{mr}}) and imaginary (\xref{mi}{\texttt{mi}}) parts of the complex index of refraction of the particle medium.  Each argument is a comma-separated list (with no spaces) of values for each derivative.  For example, if one had a log normal size distribution and derivatives with respect to $r_{g}$, $(\ln \sigma_{g})^{2}$, $m_{r}$, and $m_{i}$, in that order, the flag and required arguments would be given as
+\begin{verbatim}
+     -m_l 0.0,0.0,1.0,0.0 0.0,0.0,0.0,1.0
+\end{verbatim}
+where each of the 2 lists have a length of 4.  This flag is only valid when \texttt{-derivs} is given and is optional with default values all equal to zero.
+
+\xlabel{callmie_n_int1}
+\item[\texttt{-n\_int1 <n\_int1>}] \hfill \\
+Set the number of subintervals from 0 to $r_{1}$ (\xref{n_int1}{\texttt{n\_int1}}) for the integration of size distribution.  Only used for the power law size distribution.
+
+\xlabel{callmie_n_int2}
+\item[\texttt{-n\_int2 <n\_int2>}] \hfill \\
+Set the number of subintervals from $r_{1}$ to $r_{2}$ (\xref{n_int2}{\texttt{n\_int2}}) for the integration of size distribution.
+
+\xlabel{callmie_n_quad}
+\item[\texttt{-n\_quad <n\_quad>}] \hfill \\
+Set the number of quadrature points to use per subinterval (\xref{n_quad}{\texttt{n\_quad}}) for the integration of size distribution.
+
+\xlabel{callmie_n_angles}
+\item[\texttt{-n\_angles <n\_angles>}] \hfill \\
+Set the number of scattering angles (\xref{n_angles}{\texttt{n\_angles}}) at which to compute the elements of the scattering matrix.  Only used if output flag \texttt{-pf} is given.
+
+\end{description}
+
+
+\xdocsubsection{Output flags}
+\label{lmie_command_line_program_calllmie_calllmie_input_format_output_flags}
+
+\begin{description}
+
+\xlabel{callmie_xx}
+\item[\texttt{-pf,-gc,-lc <FILE> [FILE\_L1,FILE\_L2,...]}] \hfill \\
+Write the scalar outputs along with the elements of the scattering phase matrix (\texttt{-pf}) or the coefficients for the expansion of the scattering phase matrix in terms of generalized spherical functions (\texttt{-gc}) or Legendre polynomials (\texttt{-lc}).  The first argument FILE is the output file for the full quantities while the second argument is a comma-separated list (with no spaces) of output files (FILE\_L1, FILE\_L2, ...) for each derivative and is only required if the option \texttt{-derivs} is given.  For example, if one had a log normal size distribution and derivatives with respect to $r_{g}$, $(\ln \sigma_{g})^{2}$, $m_{r}$, and $m_{i}$, in that order, the flag and required arguments for output with the coefficients for the expansion of the scattering phase matrix in terms of generalized spherical functions could be given as
+\begin{verbatim}
+     -gc output.gc "output_l_r_g.gc,output_l_ln_r_g_2.gc, \
+                    output_l_m_r.gc,output_l_ln_m_i.gc"
+\end{verbatim}
+If the `-' symbol is given in place of a file name the associated output will be sent to standard output.  Multiple types of output may be output by giving more than one of \texttt{-pf}, \texttt{-gc}, or \texttt{-lc} but the scalar outputs will be identical in each case.
+
+\end{description}
+
+
+\xdocsection{Calllmie output format}
+\label{lmie_command_line_program_calllmie_calllmie_output_format}
+
+The calllmie output format is self-explanatory.
+
+%\xdocsubsection{Phase matrix file output format}
+%\label{lmie_command_line_program_calllmie_calllmie_output_format_phase_matrix}
+
+
+%\xdocsubsection{Coefficient file output format}
+%\label{lmie_command_line_program_calllmie_calllmie_output_format_coefficient}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\bibliography{lmie.bib}
+
+\addcontentsline{toc}{chapter}{Bibliography}
+
+
+\end{document}

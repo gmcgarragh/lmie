@@ -1,0 +1,15 @@
+This example program calls LMie to calculate the scattering properties of the accumulation mode mineral dust described by d'Almeida, 1991 at 2.25um.  A log normal size distribution is used with a mean radius of 0.39um and a standard deviation of 2.0um ranging from 0.005 to 50um.  The real and imaginary parts of the index of refraction are 1.53 and 0.0054, respectively.  In this case the output includes size distribution statistics, extinction, scattering, and backscattering cross sections, asymmetry parameter, coefficients for the expansion of the scattering matrix in generalized spherical functions, and the elements of the normalized scattering matrix at 181 angles.  In addition, derivatives of the these output quantities with respect to mean radius, standard deviation, and the real and imaginary parts of the index of refraction are also generated.
+
+Fill the LMie input structure.  See the LMie documentation for details of each input quantity.
+
+Allocate memory used in the input structure for 4 derivatives.
+
+Set linearized inputs.  The strategy here is to set all linearized inputs to zero then set the appropriate linearized inputs to unity.
+
+Or more conveniently just call the function.
+
+Call LMie to get the Mie solution.  In this case we indicate that memory used in the output structure should be allocated, verbose output is off, two threads are used if LMie was compiled with multi-threading support, and MPI should not be used.
+
+Output results.
+
+Free memory allocated in the input and output structures.
