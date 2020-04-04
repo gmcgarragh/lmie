@@ -1,6 +1,6 @@
-/******************************************************************************%
+/*******************************************************************************
 **
-**    Copyright (C) 2008-2012 Greg McGarragh <gregm@atmos.colostate.edu>
+**    Copyright (C) 2008-2020 Greg McGarragh <greg.mcgarragh@colostate.edu>
 **
 **    This source code is licensed under the GNU General Public License (GPL),
 **    Version 3.  See the file COPYING for more details.
@@ -14,9 +14,7 @@
 #include <mpi.h>
 #endif
 
-#ifdef USE_OPENMP
 #include <omp.h>
-#endif
 
 #ifdef USE_PTHREADS
 #include <pthread.h>
@@ -32,7 +30,6 @@
 /*******************************************************************************
  *
  ******************************************************************************/
-#if defined USE_OPENMP || defined USE_PTHREADS
 static int size_dist_loop_index(int n_qsize, int i_proc, int n_procs, int **index) {
 
      int i;
@@ -62,7 +59,7 @@ static int size_dist_loop_index(int n_qsize, int i_proc, int n_procs, int **inde
 
      return n_qsize2;
 }
-#endif
+
 
 
 /*******************************************************************************
@@ -109,7 +106,6 @@ static void init_mie_solution(int n_qang, int n_derivs,
 /*******************************************************************************
  *
  ******************************************************************************/
-#if defined USE_MPI || defined USE_OPENMP || defined USE_PTHREADS
 static void add_mie_solution(int n_qang, int n_derivs,
                              double *cext1, double *csca1, double *cbak1,
                              double *g1, double **pf1,
@@ -149,14 +145,14 @@ static void add_mie_solution(int n_qang, int n_derivs,
           }
      }
 }
-#endif
+
 
 
 /*******************************************************************************
  *
  ******************************************************************************/
 static int lmie_core_sequential(int n_qsize, int n_derivs1, int n_derivs2,
-                                int *index1, int *index2,
+                                int save_control, int *index1, int *index2,
                                 double lambda, double *lambda_l,
                                 dcomplex m, dcomplex *m_l, dcomplex m2,
                                 double *qx, double *qw, double *nr,
@@ -167,6 +163,7 @@ static int lmie_core_sequential(int n_qsize, int n_derivs1, int n_derivs2,
                                 double **qx_l, double **qw_l, double **nr_l,
                                 double *cext_l, double *csca_l, double *cbak_l,
                                 double *g_l, double ***pf_l,
+                                double **save1, double ***save2,
                                 int n1, int n2, int n_qang, int n_threads) {
 
      lmie_core_shared_data s;
@@ -177,9 +174,10 @@ static int lmie_core_sequential(int n_qsize, int n_derivs1, int n_derivs2,
      /*-------------------------------------------------------------------------
       *
       *-----------------------------------------------------------------------*/
-     lmie_core_shared_import(&s, n_qsize, n_derivs1, n_derivs2, index1, index2,
-                             lambda, lambda_l, m, m_l, m2, qx, qw, nr, fv1, fv2,
-                             fv3, fv4, qx2, qw2, qx_l, qw_l, nr_l, n1, n2, n_qang);
+     lmie_core_shared_import(&s, n_qsize, n_derivs1, n_derivs2, save_control,
+                             index1, index2, lambda, lambda_l, m, m_l, m2, qx,
+                             qw, nr, fv1, fv2, fv3, fv4, qx2, qw2, qx_l, qw_l,
+                             nr_l, save1, save2, n1, n2, n_qang);
 
 
      /*-------------------------------------------------------------------------
@@ -216,10 +214,8 @@ static int lmie_core_sequential(int n_qsize, int n_derivs1, int n_derivs2,
 /*******************************************************************************
  *
  ******************************************************************************/
-#if defined USE_OPENMP || defined USE_PTHREADS
-
 static int lmie_core_xthreads(int n_qsize, int n_derivs1, int n_derivs2,
-                              int *index1, int *index2,
+                              int save_control, int *index1, int *index2,
                               double lambda, double *lambda_l,
                               dcomplex m, dcomplex *m_l, dcomplex m2,
                               double *qx, double *qw, double *nr,
@@ -230,6 +226,7 @@ static int lmie_core_xthreads(int n_qsize, int n_derivs1, int n_derivs2,
                               double **qx_l, double **qw_l, double **nr_l,
                               double *cext_l, double *csca_l, double *cbak_l,
                               double *g_l, double ***pf_l,
+                              double **save1, double ***save2,
                               int n1, int n2, int n_qang, int n_threads) {
 
      int i;
@@ -241,11 +238,9 @@ static int lmie_core_xthreads(int n_qsize, int n_derivs1, int n_derivs2,
      void *t_result;
 
      pthread_t *pt;
-
      pthread_attr_t attr;
 #endif
      lmie_core_shared_data s;
-
      lmie_core_threads_data *d;
 
 
@@ -255,9 +250,10 @@ static int lmie_core_xthreads(int n_qsize, int n_derivs1, int n_derivs2,
      /*-------------------------------------------------------------------------
       *
       *-----------------------------------------------------------------------*/
-     lmie_core_shared_import(&s, n_qsize, n_derivs1, n_derivs2, index1, index2,
-                             lambda, lambda_l, m, m_l, m2, qx, qw, nr, fv1, fv2,
-                             fv3, fv4, qx2, qw2, qx_l, qw_l, nr_l, n1, n2, n_qang);
+     lmie_core_shared_import(&s, n_qsize, n_derivs1, n_derivs2, save_control,
+                             index1, index2, lambda, lambda_l, m, m_l, m2, qx,
+                             qw, nr, fv1, fv2, fv3, fv4, qx2, qw2, qx_l, qw_l,
+                             nr_l, save1, save2, n1, n2, n_qang);
 
 
      /*-------------------------------------------------------------------------
@@ -304,14 +300,12 @@ static int lmie_core_xthreads(int n_qsize, int n_derivs1, int n_derivs2,
      /*-------------------------------------------------------------------------
       *
       *-----------------------------------------------------------------------*/
-#ifdef USE_OPENMP
+#ifndef USE_PTHREADS
      omp_set_num_threads(n_threads2);
 #pragma omp parallel
-{
 #pragma omp for
      for (i = 0; i < n_threads2; ++i)
           lmie_core(&d[i]);
-}
 #else
      pt = (pthread_t *) malloc(n_threads * sizeof(pthread_t));
 
@@ -371,7 +365,6 @@ static int lmie_core_xthreads(int n_qsize, int n_derivs1, int n_derivs2,
      return 0;
 }
 
-#endif
 
 
 /*******************************************************************************
@@ -396,7 +389,7 @@ int lmie_core_cuda(int n_qsize, int n_derivs,
 #endif
 
 static int lmie_core_shared(int n_qsize, int n_derivs1, int n_derivs2,
-                            int *index1, int *index2,
+                            int save_control, int *index1, int *index2,
                             double lambda, double *lambda_l,
                             dcomplex m, dcomplex *m_l, dcomplex m2,
                             double *qx, double *qw, double *nr,
@@ -407,6 +400,7 @@ static int lmie_core_shared(int n_qsize, int n_derivs1, int n_derivs2,
                             double **qx_l, double **qw_l, double **nr_l,
                             double *cext_l, double *csca_l, double *cbak_l,
                             double *g_l, double ***pf_l,
+                            double **save1, double ***save2,
                             int n1, int n2, int n_qang, int n_threads) {
 
      /*-------------------------------------------------------------------------
@@ -422,40 +416,35 @@ static int lmie_core_shared(int n_qsize, int n_derivs1, int n_derivs2,
 #ifdef USE_CUDA
 if (0) {
 #endif
-#if defined USE_OPENMP || defined USE_PTHREADS
      if (n_threads == 1) {
-#endif
-          if (lmie_core_sequential
-                        (n_qsize, n_derivs1, n_derivs2, index1, index2, lambda,
-                         lambda_l, m, m_l, m2, qx, qw, nr, fv1, fv2, fv3, fv4,
-                         qx2, qw2, cext, csca, cbak, g, pf, qx_l, qw_l, nr_l,
-                         cext_l, csca_l, cbak_l, g_l, pf_l, n1, n2, n_qang,
-                         n_threads)) {
-               eprintf("ERROR: lmie_core_sequential()\n");
+          if (lmie_core_sequential(n_qsize, n_derivs1, n_derivs2, save_control,
+                                   index1, index2, lambda, lambda_l, m, m_l, m2,
+                                   qx, qw, nr, fv1, fv2, fv3, fv4, qx2, qw2, cext,
+                                   csca, cbak, g, pf, qx_l, qw_l, nr_l, cext_l,
+                                   csca_l, cbak_l, g_l, pf_l, save1, save2, n1, n2,
+                                   n_qang, n_threads)) {
+               fprintf(stderr, "ERROR: lmie_core_sequential()\n");
                return -1;
           }
-#if defined USE_OPENMP || defined USE_PTHREADS
      }
      else {
-          if (lmie_core_xthreads
-                        (n_qsize, n_derivs1, n_derivs2, index1, index2, lambda,
-                         lambda_l, m, m_l, m2, qx, qw, nr, fv1, fv2, fv3, fv4,
-                         qx2, qw2, cext, csca, cbak, g, pf, qx_l, qw_l, nr_l,
-                         cext_l, csca_l, cbak_l, g_l, pf_l, n1, n2, n_qang,
-                         n_threads)) {
-               eprintf("ERROR: lmie_core_xthreads()\n");
+          if (lmie_core_xthreads(n_qsize, n_derivs1, n_derivs2, save_control,
+                                 index1, index2, lambda, lambda_l, m, m_l, m2,
+                                 qx, qw, nr, fv1, fv2, fv3, fv4, qx2, qw2, cext,
+                                 csca, cbak, g, pf, qx_l, qw_l, nr_l, cext_l,
+                                 csca_l, cbak_l, g_l, pf_l, save1, save2, n1, n2,
+                                 n_qang, n_threads)) {
+               fprintf(stderr, "ERROR: lmie_core_xthreads()\n");
                return -1;
           }
      }
-#endif
 #ifdef USE_CUDA
 }
-          if (lmie_core_cuda
-                        (n_qsize, n_derivs1, lambda, lambda_l, m, m_l, m2, qx, qw,
-                         nr, fv1, fv2, fv3, fv4, qx2, qw2, cext, csca, cbak, g,
-                         pf, qx_l, qw_l, nr_l, cext_l, csca_l, cbak_l, g_l, pf_l,
-                         n1, n2, n_qang)) {
-               eprintf("ERROR: lmie_core_cuda()\n");
+          if (lmie_core_cuda(n_qsize, n_derivs1, lambda, lambda_l, m, m_l, m2,
+                             qx, qw, nr, fv1, fv2, fv3, fv4, qx2, qw2, cext, csca,
+                             cbak, g, pf, qx_l, qw_l, nr_l, cext_l, csca_l, cbak_l,
+                             g_l, pf_l, n1, n2, n_qang)) {
+               fprintf(stderr, "ERROR: lmie_core_cuda()\n");
                return -1;
           }
 #endif
@@ -470,7 +459,7 @@ if (0) {
 #ifdef USE_MPI
 
 static int lmie_core_master(int n_qsize, int n_derivs1, int n_derivs2,
-                            int *index1, int *index2,
+                            int save_control, int *index1, int *index2,
                             double lambda, double *lambda_l,
                             dcomplex m, dcomplex *m_l, dcomplex m2,
                             double *qx, double *qw, double *nr,
@@ -826,16 +815,16 @@ static int lmie_core_slave() {
           lambda_l = alloc_array1_d (n_derivs);
           m_l      = alloc_array1_dc(n_derivs);
 
-          MPI_Recv(lambda_l, n_derivs,        MPI_DOUBLE, 0, 19, MPI_COMM_WORLD, &status);
-          MPI_Recv(m_l,      n_derivs * 2,    MPI_DOUBLE, 0, 20, MPI_COMM_WORLD, &status);
+          MPI_Recv(lambda_l, n_derivs,      MPI_DOUBLE, 0, 19, MPI_COMM_WORLD, &status);
+          MPI_Recv(m_l,      n_derivs * 2,  MPI_DOUBLE, 0, 20, MPI_COMM_WORLD, &status);
 
           qx_l = alloc_array2_d(n_qsize, n_derivs);
           qw_l = alloc_array2_d(n_qsize, n_derivs);
           nr_l = alloc_array2_d(n_qsize, n_derivs);
 
-          MPI_Recv(*qx_l, n_qsize*n_derivs,    MPI_DOUBLE, 0, 21, MPI_COMM_WORLD, &status);
-          MPI_Recv(*qw_l, n_qsize*n_derivs,    MPI_DOUBLE, 0, 22, MPI_COMM_WORLD, &status);
-          MPI_Recv(*nr_l, n_qsize*n_derivs,    MPI_DOUBLE, 0, 23, MPI_COMM_WORLD, &status);
+          MPI_Recv(*qx_l, n_qsize*n_derivs, MPI_DOUBLE, 0, 21, MPI_COMM_WORLD, &status);
+          MPI_Recv(*qw_l, n_qsize*n_derivs, MPI_DOUBLE, 0, 22, MPI_COMM_WORLD, &status);
+          MPI_Recv(*nr_l, n_qsize*n_derivs, MPI_DOUBLE, 0, 23, MPI_COMM_WORLD, &status);
      }
 
 
@@ -857,12 +846,14 @@ static int lmie_core_slave() {
      /*-------------------------------------------------------------------------
       *
       *-----------------------------------------------------------------------*/
-     if (lmie_core_shared(n_qsize, n_derivs1, n_derivs2, index1, index2, lambda,
-                          lambda_l, m, m_l, m2, qx, qw, nr, fv1, fv2, fv3, fv4,
-                          qx2, qw2, &cext, &csca, &cbak, &g, pf, qx_l, qw_l,
-                          nr_l, cext_l, csca_l, cbak_l, g_l, pf_l, n1, n2, n_qang,
-                          n_threads)) {
-          eprintf("ERROR: lmie_core_shared()\n");
+     int save_control = 0;
+
+     if (lmie_core_shared(n_qsize, n_derivs1, n_derivs2, save_control, index1,
+                          index2, lambda, lambda_l, m, m_l, m2, qx, qw, nr, fv1,
+                          fv2, fv3, fv4, qx2, qw2, &cext, &csca, &cbak, &g, pf,
+                          qx_l, qw_l, nr_l, cext_l, csca_l, cbak_l, g_l, pf_l,
+                          NULL, NULL, n1, n2, n_qang, n_threads)) {
+          fprintf(stderr, "ERROR: lmie_core_shared()\n");
           return -1;
      }
 
@@ -949,7 +940,7 @@ static void pf_4_to_6(double **pf4, double **pf6) {
  *
  ******************************************************************************/
 int lmie_core_solution(int n_qsize, int n_derivs1, int n_derivs2,
-                       int *index1, int *index2,
+                       int save_control, int *index1, int *index2,
                        double lambda, double *lambda_l,
                        double mr, double mi, double *mr_l, double *mi_l,
                        double *qx, double *qw, double *nr,
@@ -959,10 +950,13 @@ int lmie_core_solution(int n_qsize, int n_derivs1, int n_derivs2,
                        double **qx_l, double **qw_l, double **nr_l,
                        double *cext_l, double *csca_l, double *cbak_l,
                        double *g_l, double ***gc_l, double ***lc_l,
-                       double accuracy, int verbose, int n_threads, int use_mpi) {
+                       double ***save1, double ****save2, double accuracy,
+                       int verbose, int n_threads, int use_mpi) {
 
      int i;
      int j;
+     int jj;
+     int k;
 
      int n1;
      int n2;
@@ -970,7 +964,7 @@ int lmie_core_solution(int n_qsize, int n_derivs1, int n_derivs2,
      int n_qang;
 
      int n_coef;
-     int n_coef2;
+     int n_coef2 = 0;
 
      int n_derivs;
 #ifdef USE_MPI
@@ -1011,11 +1005,15 @@ int lmie_core_solution(int n_qsize, int n_derivs1, int n_derivs2,
      z = (mr - _Complex_I * mi) * x;
 
      n1 = calc_n1(x);
-     n2 = calc_n2(n1, z);
+     n2 = calc_n2(n1, x, z);
+
+     if (! gc && ! lc)
+          n_qang = 0;
+     else
+          n_qang = 2 * n1;
 /*
-     n_qang = 2 * n1 - 1;
+          n_qang = 2 * n1 - 1;
 */
-     n_qang = 2 * n1;
      n_coef = 2 * n1;
 
      n_derivs = n_derivs1 + n_derivs2;
@@ -1029,15 +1027,18 @@ int lmie_core_solution(int n_qsize, int n_derivs1, int n_derivs2,
      fv3 = alloc_array1_d(n1 + 1);
      fv4 = alloc_array1_d(n1 + 1);
 
-     qx2 = alloc_array1_d(n_qang);
-     qw2 = alloc_array1_d(n_qang);
+     if (n_qang > 0) {
+          qx2 = alloc_array1_d(n_qang);
+          qw2 = alloc_array1_d(n_qang);
 
-     pf  = alloc_array2_d(4, n_qang);
+          pf  = alloc_array2_d(4, n_qang);
+     }
 
      if (n_derivs > 0) {
           m_l = alloc_array1_dc(n_derivs);
 
-          pf_l = alloc_array3_d(n_derivs, 4, n_qang);
+          if (n_qang > 0)
+               pf_l = alloc_array3_d(n_derivs, 4, n_qang);
      }
 
 
@@ -1067,41 +1068,89 @@ int lmie_core_solution(int n_qsize, int n_derivs1, int n_derivs2,
     /*--------------------------------------------------------------------
      *
      *------------------------------------------------------------------*/
-     gauss_leg_quadx(n_qang, -1., 1., qx2, qw2);
+     if (n_qang > 0)
+          gauss_leg_quadx(n_qang, -1., 1., qx2, qw2);
+
+
+    /*--------------------------------------------------------------------
+     *
+     *------------------------------------------------------------------*/
+     if (save_control == 1) {
+          *save1 = alloc_array2_d(4, n_qsize);
+          *save2 = alloc_array3_d(4, n_qsize, n_qang);
+     }
 
 
      /*-------------------------------------------------------------------------
       *
       *-----------------------------------------------------------------------*/
+if (save_control == 2) {
+
+     init_mie_solution(n_qang, n_derivs, cext, csca, cbak, g, pf, cext_l, csca_l, cbak_l, g_l, pf_l);
+
+     for (i = 0; i < n_qsize; ++i) {
+          a = nr[i] * qw[i];
+
+          *cext += (*save1)[0][i] * a;
+          *csca += (*save1)[1][i] * a;
+          *cbak += (*save1)[2][i] * a;
+          *g    += (*save1)[3][i] * a;
+
+          for (j = 0; j < n_qang; ++j) {
+               pf[0][j] += (*save2)[0][i][j] * a;
+               pf[1][j] += (*save2)[1][i][j] * a;
+               pf[2][j] += (*save2)[2][i][j] * a;
+               pf[3][j] += (*save2)[3][i][j] * a;
+          }
+
+          for (j = 0; j < n_derivs2; ++j) {
+               jj = index2[j];
+
+               a_l = nr_l[i][jj] * qw[i] + nr[i] * qw_l[i][jj];
+
+               cext_l[jj] += (*save1)[0][i] * a_l;
+               csca_l[jj] += (*save1)[1][i] * a_l;
+               cbak_l[jj] += (*save1)[2][i] * a_l;
+               g_l   [jj] += (*save1)[3][i] * a_l;
+
+               for (k = 0; k < n_qang; ++k) {
+                    pf_l[jj][0][k] += (*save2)[0][i][k] * a_l;
+                    pf_l[jj][1][k] += (*save2)[1][i][k] * a_l;
+                    pf_l[jj][2][k] += (*save2)[2][i][k] * a_l;
+                    pf_l[jj][3][k] += (*save2)[3][i][k] * a_l;
+               }
+          }
+     }
+}
+else {
 #ifdef USE_MPI
      if (use_mpi)
           MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
      if (! use_mpi || mpi_size == 1) {
 #endif
-          if (lmie_core_shared
-                        (n_qsize, n_derivs1, n_derivs2, index1, index2, lambda,
-                         lambda_l, m, m_l, m2, qx, qw, nr, fv1, fv2, fv3, fv4,
-                         qx2, qw2, cext, csca, cbak, g, pf, qx_l, qw_l, nr_l,
-                         cext_l, csca_l, cbak_l, g_l, pf_l, n1, n2, n_qang,
-                         n_threads)) {
-               eprintf("ERROR: lmie_core_shared()\n");
+          if (lmie_core_shared(n_qsize, n_derivs1, n_derivs2, save_control, index1,
+                               index2, lambda, lambda_l, m, m_l, m2, qx, qw, nr, fv1,
+                               fv2, fv3, fv4, qx2, qw2, cext, csca, cbak, g, pf, qx_l,
+                               qw_l, nr_l, cext_l, csca_l, cbak_l, g_l, pf_l, *save1,
+                               *save2, n1, n2, n_qang, n_threads)) {
+               fprintf(stderr, "ERROR: lmie_core_shared()\n");
                return -1;
           }
 #ifdef USE_MPI
      }
      else {
-          if (lmie_core_master
-                        (n_qsize, n_derivs1, n_derivs2, index1, index2, lambda,
-                         lambda_l, m, m_l, m2, qx, qw, nr, fv1, fv2, fv3, fv4,
-                         qx2, qw2, cext, csca, cbak, g, pf, qx_l, qw_l, nr_l,
-                         cext_l, csca_l, cbak_l, g_l, pf_l, n1, n2, n_qang,
-                         verbose, n_threads)) {
-               eprintf("ERROR: lmie_core_master()\n");
+          if (lmie_core_master(n_qsize, n_derivs1, n_derivs2, save_control, index1,
+                               index2, lambda, lambda_l, m, m_l, m2, qx, qw, nr, fv1,
+                               fv2, fv3, fv4, qx2, qw2, cext, csca, cbak, g, pf, qx_l,
+                               qw_l, nr_l, cext_l, csca_l, cbak_l, g_l, pf_l, n1, n2,
+                               n_qang, verbose, n_threads)) {
+               fprintf(stderr, "ERROR: lmie_core_master()\n");
                return -1;
           }
      }
 #endif
+}
 
      /*-------------------------------------------------------------------------
       *
@@ -1133,7 +1182,7 @@ int lmie_core_solution(int n_qsize, int n_derivs1, int n_derivs2,
 
      /*-------------------------------------------------------------------------
       * multiply by 2. / x^2 to get efficiency, then by PI * r^2 to get cross
-      * section ... 2. / x * PI * r^2 = lambda^2 / (2. * PI)
+      * section ... 2. / x^2 * PI * r^2 = lambda^2 / (2. * PI)
       *-----------------------------------------------------------------------*/
      a = lambda * lambda / (2. * PI);
 
@@ -1200,15 +1249,18 @@ int lmie_core_solution(int n_qsize, int n_derivs1, int n_derivs2,
      free_array1_d(fv3);
      free_array1_d(fv4);
 
-     free_array1_d(qx2);
-     free_array1_d(qw2);
+     if (n_qang > 0) {
+          free_array1_d(qx2);
+          free_array1_d(qw2);
 
-     free_array2_d(pf);
+          free_array2_d(pf);
+     }
 
      if (n_derivs > 0) {
           free_array1_dc(m_l);
 
-          free_array3_d(pf_l);
+          if (n_qang > 0)
+               free_array3_d(pf_l);
      }
 
 
@@ -1225,7 +1277,7 @@ int lmie_core_solution(int n_qsize, int n_derivs1, int n_derivs2,
 int lmie_core_solution_slave() {
 
      if (lmie_core_slave()) {
-          eprintf("ERROR: lmie_core_slave()\n");
+          fprintf(stderr, "ERROR: lmie_core_slave()\n");
           return -1;
      }
 

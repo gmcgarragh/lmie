@@ -1,6 +1,6 @@
-/******************************************************************************%
+/*******************************************************************************
 **
-**    Copyright (C) 2008-2012 Greg McGarragh <gregm@atmos.colostate.edu>
+**    Copyright (C) 2008-2020 Greg McGarragh <greg.mcgarragh@colostate.edu>
 **
 **    This source code is licensed under the GNU General Public License (GPL),
 **    Version 3.  See the file COPYING for more details.
@@ -43,6 +43,9 @@ typedef struct {
      int n1;
      int n2;
      int n_qang;
+     int save_control;
+     double **save1;
+     double ***save2;
 } lmie_core_shared_data;
 
 
@@ -64,17 +67,18 @@ typedef struct {
 
 
 int calc_n1(double x);
-int calc_n2(int n1, dcomplex z);
+int calc_n2(int n1, double x, dcomplex z);
 
 void lmie_core_shared_import(lmie_core_shared_data *d,
                              int n_qsize, int n_derivs1, int n_derivs2,
-                             int *index1, int *index2,
+                             int save_control, int *index1, int *index2,
                              double lambda, double *lambda_l,
                              dcomplex m, dcomplex *m_l, dcomplex m2,
                              double *qx, double *qw, double *nr,
                              double *fv1, double *fv2, double *fv3, double *fv4,
                              double *qx2, double *qw2,
                              double **qx_l, double **qw_l, double **nr_l,
+                             double **save1, double ***save2,
                              int n1, int n2, int n_qang);
 
 void *lmie_core(lmie_core_threads_data *d);

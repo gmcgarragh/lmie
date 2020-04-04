@@ -1,0 +1,251 @@
+%*******************************************************************************
+%
+%*******************************************************************************
+\documentclass[letterpaper, 11pt]{article}
+
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+%\usepackage[absolute]{textpos}
+\usepackage{booktabs}
+%\usepackage{caption}
+%\captionsetup[table]{skip=5pt}
+\usepackage{chngpage}
+\usepackage{color}
+%\usepackage{colortbl}
+\usepackage{datetime}
+%\usepackage{fancyhdr}
+\usepackage{ifpdf}
+%\usepackage[landscape]{geometry}
+%\usepackage{longtable}
+%\usepackage{microtype}
+\usepackage{natbib}
+%\usepackage{pdflscape}
+%\usepackage{setspace}
+%\usepackage{tabularx}
+\usepackage{upgreek}
+%\usepackage{verbatim}
+%\usepackage{xkeyval}
+
+\ifpdf
+     \pdfcompresslevel = 9
+     \usepackage[pdftex]{graphicx}
+     \usepackage[pdftex,bookmarks=true]{hyperref}
+     \DeclareGraphicsExtensions{.pdf, .png}
+\else
+     \usepackage{graphicx}
+     \usepackage{hyperref}
+     \usepackage{pslatex}
+     \DeclareGraphicsExtensions{.eps, .ps}
+\fi
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+% portrait
+%\setlength{\voffset}		{0.75in}
+
+\setlength{\topmargin}		{0.0in}
+\setlength{\headheight}		{0.0in}
+\setlength{\headsep}		{0.0in}
+\setlength{\textheight}		{8.75in}
+%\setlength{\footskip}		{0.0in}
+\setlength{\oddsidemargin}	{0.15in}
+\setlength{\evensidemargin}	{0.15in}
+\setlength{\textwidth}		{6.2in}
+
+% landscape
+%\setlength{\voffset}		{-0.25in}
+
+%\setlength{\topmargin}		{0.0in}
+%\setlength{\headheight}	{0.0in}
+%\setlength{\headsep}		{0.0in}
+%\setlength{\textheight}	{7.0in}
+%\setlength{\footskip}		{0.0in}
+%\setlength{\oddsidemargin}	{0.15in}
+%\setlength{\evensidemargin}	{0.15in}
+%\setlength{\textwidth}		{8.7in}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\setcounter{secnumdepth}{5}
+
+
+\definecolor{citescolor}{rgb}{0.0,0.5,0.0}
+\definecolor{linkscolor}{rgb}{0.5,0.0,0.0}
+\definecolor{urlcolor}{rgb}{0.0,0.0,1.0}
+
+\hypersetup{bookmarks=true,colorlinks=true,citecolor=citescolor,linkcolor=linkscolor,urlcolor=urlcolor}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\title{LMie: \\ Implementation optimized equations}
+\author{Greg McGarragh}
+\date{Julian date: 2455813.8875}
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\begin{document}
+
+
+\maketitle
+
+
+\tableofcontents
+\newpage
+
+
+%*******************************************************************************
+%
+%*******************************************************************************
+\section{LMie core}
+\label{sec:lmie_core}
+
+\subsection{Forward}
+\label{sec:lmie_core_forward}
+
+\begin{equation}
+x = 2 \pi a_{i} / \lambda
+\label{eq:lmie_core_x}
+\end{equation}
+
+\begin{equation}
+z = m x
+\label{eq:lmie_core_z}
+\end{equation}
+
+\begin{equation}
+f = n(a_{i}) w_{i}
+\label{eq:lmie_core_f}
+\end{equation}
+
+\begin{equation}
+r_{n_{1}}(x) = 0
+\label{eq:lmie_core_r_n1}
+\end{equation}
+
+\begin{equation}
+r_{i}(x) = \left[\frac{2i + 1}{x} - r_{i + 1}(x)\right]^{-1}
+\label{eq:lmie_core_r_i}
+\end{equation}
+
+\begin{equation}
+\Psi_{0}(x) = \sin x
+\label{eq:lmie_core_psi_0}
+\end{equation}
+
+\begin{equation}
+\Psi_{i}(x) = r_{i}(x) \Psi_{i-1}(x)
+\label{eq:lmie_core_psi_i}
+\end{equation}
+
+\begin{gather}
+\chi_{-1}(x) = \sin x \\
+\chi_{0}(x) = \cos x
+\label{eq:lmie_core_chi_m_1_and_chi_1}
+\end{gather}
+
+\begin{equation}
+\chi_{i+1}(x) = \frac{2i + 1}{x}\chi_{i}(x) - \chi_{i-1}(x)
+\label{eq:lmie_core_chi_i}
+\end{equation}
+
+\begin{equation}
+\zeta_{i}(x) = \psi_{i}(x) + i \chi_{i}(x)
+\label{eq:lmie_core_zeta_i}
+\end{equation}
+
+\begin{equation}
+D_{i}(z) = \frac{i + 1}{z} - \left[D_{i + 1}(z) + \frac{i + 1}{z}\right]^{-1}
+\label{eq:lmie_core_d_i}
+\end{equation}
+
+\begin{equation}
+a_{i} = \frac{\left[D_{i}(z)/m + n / x\right]\psi_{i}(x) - \psi_{i-1}(x)}{\left[D_{i}(z)/m + n / x\right]\zeta_{i}(x) - \zeta_{i-1}(x)}
+\label{eq:lmie_core_a_i}
+\end{equation}
+
+\begin{equation}
+b_{i} = \frac{\left[m D_{i}(z) + n / x\right]\psi_{i}(x) - \psi_{i-1}(x)}{\left[m D_{i}(z) + n / x\right]\zeta_{i}(x) - \zeta_{i-1}(x)}
+\label{eq:lmie_core_b_i}
+\end{equation}
+
+\begin{equation}
+C_{\mathrm{ext}} = \frac{\lambda^{2}}{2\pi} \sum^{n_{\mathrm{size}}}_{i = 1} \left[\sum^{n_{1}}_{j = 1} (2i + 1) \mathrm{Re}(a_{j} + b_{j})\right] w_{size,i}
+\label{eq:lmie_core_c_ext}
+\end{equation}
+
+\begin{equation}
+C_{\mathrm{sca}} = \frac{\lambda^{2}}{2\pi} \sum^{n_{\mathrm{size}}}_{i = 1} \left[\sum^{n_{1}}_{i = 1} (2i + 1) (|a_{i}|^{2} + |b_{i}|^{2})\right] w_{size,i}
+\label{eq:lmie_core_c_sca}
+\end{equation}
+
+\begin{equation}
+C_{\mathrm{bak}} = \frac{\lambda^{2}}{4\pi} \sum^{n_{\mathrm{size}}}_{i = 1} \left|\sum^{n_{1}}_{j = 1} (2i + 1) (-1)^{i} (a_{j} - b_{j})\right|^{2} w_{size,i}
+\label{eq:lmie_core_c_bak}
+\end{equation}
+
+\begin{equation}
+g = \frac{2}{C_{\mathrm{sca}}} \sum^{n_{\mathrm{size}}}_{i = 1} \left\{\sum^{n_{1}}_{i = 1}\left[\frac{i(i + 2)}{i + 1} \mathrm{Re}(a_{i}a^{*}_{i+1} + b_{i}b^{*}_{i+1}) + \frac{2i + 1}{i(i + 1)} \mathrm{Re}(a_{i}b^{*}_{i})\right]\right\} w_{size,i}
+\label{eq:lmie_core_g}
+\end{equation}
+
+\begin{gather}
+\pi_{0}(\mu) = 0 \\
+\pi_{1}(\mu) = 1
+\label{eq:lmie_core_pi_0_and_pi_1}
+\end{gather}
+
+\begin{equation}
+s = \mu \pi_{i}(\mu)
+\label{eq:lmie_core_s}
+\end{equation}
+
+\begin{equation}
+t = s - \pi_{i-1}(\mu)
+\label{eq:lmie_core_t}
+\end{equation}
+
+\begin{equation}
+\tau_{i}(\mu) = it - \pi_{i-1}(\mu)
+\label{eq:lmie_core_tau_i}
+\end{equation}
+
+\begin{equation}
+\pi_{i+1}(\mu) = s + \left(\frac{i + 1}{i}\right)t
+\label{eq:lmie_core_pi_i_p_1}
+\end{equation}
+
+
+\subsection{Tangent linear}
+\label{sec:lmie_core_tangent_linear}
+
+\begin{equation}
+\mathcal{L}(x) = \frac{2 \pi \mathcal{L}(a_{i}) - x \mathcal{L}(\lambda)}{\lambda}
+\label{eq:lmie_core_x_l}
+\end{equation}
+
+\begin{equation}
+\mathcal{L}(z) = \mathcal{L}(m) x + m \mathcal{L}(x)
+\label{eq:lmie_core_z_l}
+\end{equation}
+
+\begin{equation}
+\mathcal{L}(f) = \mathcal{L}\left[n(a_{i})\right] w_{i} + n(a_{i}) \mathcal{L}(w_{i})
+\label{eq:lmie_core_f_l}
+\end{equation}
+
+
+\subsection{Adjoint of tangent linear}
+\label{sec:lmie_core_adjoint_of_tangent_linear}
+
+
+\end{document}

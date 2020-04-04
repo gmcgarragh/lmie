@@ -1,33 +1,23 @@
 include ../make.inc
+include ../common.inc
 
-OBJECTS     = lmie_core.o \
-              lmie_interface.o \
-              lmie_schedule.o
+OBJECTS = lmie_core.o \
+          lmie_interface.o \
+          lmie_schedule.o
 
-OBJECTS_MPI = lmie_core.o \
-              lmie_interface_mpi.o \
-              lmie_schedule_mpi.o
+OBJECTS_PTHREADS = lmie_core.o \
+                   lmie_interface.o \
+                   lmie_schedule_pthreads.o
 
-all: liblmie.a
-
-mpi: liblmie_mpi.a
+all: liblmie.a liblmie_pthreads.a
 
 liblmie.a: $(OBJECTS)
 	ar -rs liblmie.a $(OBJECTS)
 
-liblmie_mpi.a: $(OBJECTS_MPI)
-	ar -rs liblmie_mpi.a $(OBJECTS_MPI)
+liblmie_pthreads.a: $(OBJECTS_PTHREADS)
+	ar -rs liblmie_pthreads.a $(OBJECTS_PTHREADS)
 
-lmie_interface_mpi.o: lmie_interface.c
-	$(CC) $(CCFLAGS) -c $(CCDEFINES) $(INCDIRS) -o lmie_interface_mpi.o lmie_interface.c -DUSE_MPI -I$(MPI_INCDIR)
-lmie_interface_mpi.c:
-
-lmie_schedule.o: lmie_schedule.c
-	$(CC) $(CCFLAGS) -c $(CCDEFINES) $(INCDIRS) -o lmie_schedule.o lmie_schedule.c
-lmie_schedule.c:
-
-lmie_schedule_mpi.o: lmie_schedule.c
-	$(CC) $(CCFLAGS) -c $(CCDEFINES) $(INCDIRS) -o lmie_schedule_mpi.o lmie_schedule.c -DUSE_MPI -I$(MPI_INCDIR)
-lmie_schedule_mpi.c:
+lmie_schedule_pthreads.o: lmie_schedule.c
+	$(CC) $(CCFLAGS) -c $(CCDEFINES) $(INCDIRS) -o lmie_schedule_pthreads.o lmie_schedule.c -DUSE_PTHREADS
 
 include dep.inc

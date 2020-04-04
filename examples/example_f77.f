@@ -46,10 +46,10 @@ c     integer n_int1
       real*8 mr
       real*8 mi
       real*8 a1
-      real*8 b1
-c     real*8 a2
-c     real*8 b2
-c     real*8 gamma
+      real*8 a2
+c     real*8 a3
+c     real*8 a4
+c     real*8 a5
       real*8 r1
       real*8 r2
 
@@ -57,10 +57,10 @@ c     real*8 gamma
       real*8 mr_l(n_derivs)
       real*8 mi_l(n_derivs)
       real*8 a1_l(n_derivs)
-      real*8 b1_l(n_derivs)
-c     real*8 a2_l(n_derivs)
-c     real*8 b2_l(n_derivs)
-c     real*8 gamma_l(n_derivs)
+      real*8 a2_l(n_derivs)
+c     real*8 a3_l(n_derivs)
+c     real*8 a4_l(n_derivs)
+c     real*8 a5_l(n_derivs)
       real*8 r1_l(n_derivs)
       real*8 r2_l(n_derivs)
 
@@ -103,6 +103,9 @@ c     real*8 gamma_l(n_derivs)
       real*8 lc_l(max_coef, 6, n_derivs)
       real*8 pf_l(n_angles, 6, n_derivs)
 
+      integer*8 save1
+      integer*8 save2
+
       integer lmie_calc_max_coef_f77
 
 
@@ -126,10 +129,10 @@ c     n_derivs  = 4
       mr        = 1.530d+00
       mi        = 5.400d-03
       a1        = 3.900d-01
-      b1        = 4.805d-01
-c     a2        =  			! not used for log normal
-c     b2        =  			! not used for log normal
-c     gamma     =  			! not used for log normal
+      a2        = 4.805d-01
+c     a3        =  			! not used for log normal
+c     a4        =  			! not used for log normal
+c     a5        =  			! not used for log normal
       r1        = 5.000d-03
       r2        = 5.000d+01
 
@@ -146,10 +149,10 @@ c     ******************************************************************
            mr_l(i)     = 0.d0
            mi_l(i)     = 0.d0
            a1_l(i)     = 0.d0
-           b1_l(i)     = 0.d0
-c          a2_l(i)  			! not used for log normal
-c          b2_l(i)  			! not used for log normal
-c          gamma_l(i)  			! not used for log normal
+           a2_l(i)     = 0.d0
+c          a3_l(i)  			! not used for log normal
+c          a4_l(i)  			! not used for log normal
+c          a5_l(i)  			! not used for log normal
            r1_l(i)     = 0.d0
            r2_l(i)     = 0.d0
       enddo
@@ -157,14 +160,14 @@ c          gamma_l(i)  			! not used for log normal
       mr_l(1)   = 1.d0                  ! derivative 0 is with respect to mr
       mi_l(2)   = 1.d0                  ! derivative 1 is with respect to mi
       a1_l(3)   = 1.d0                  ! derivative 2 is with respect to a1
-      b1_l(4)   = 1.d0                  ! derivative 3 is with respect to b1
+      a2_l(4)   = 1.d0                  ! derivative 3 is with respect to a2
 
 
 c     ******************************************************************
 c     * Check to see if our max_coef is big enough.
 c     ******************************************************************
       max_coef2 = lmie_calc_max_coef_f77(lambda, dist_name,
-     &                                   a1, b1, dummy_r, r1, r2)
+     &                                   a1, a2, dummy_r, r1, r2)
       if (max_coef2 .gt. max_coef) then
            write(0, *) 'max_coef too small, must be at least ',
      &                  max_coef2
@@ -180,13 +183,13 @@ c     * used.
 c     ******************************************************************
       call lmie_solution_l_f77(calc_gc, calc_lc, calc_pf,
      &                         dist_name, dummy_i, n_int2, n_quad,
-     &                         n_angles, n_derivs,
+     &                         n_angles, n_derivs, 0,
      &                         lambda, mr, mi,
-     &                         a1, b1, dummy_r, dummy_r,
-     &                         dummy_r, r1, r2,
+     &                         a1, a2, dummy_r, dummy_r, dummy_r,
+     &                         r1, r2,
      &                         lambda_l, mr_l, mi_l,
-     &                         a1_l, b1_l, dummy_r_l, dummy_r_l,
-     &                         dummy_r_l, r1_l, r2_l,
+     &                         a1_l, a2_l, dummy_r_l, dummy_r_l, dummy_r_l,
+     &                         r1_l, r2_l,
      &                         accuracy, n_coef,
      &                         r21, r22,
      &                         norm, reff, veff,
@@ -198,6 +201,7 @@ c     ******************************************************************
      &                         gavg_l, vavg_l, ravg_l, rvw_l,
      &                         cext_l, csca_l, cbak_l, g_l,
      &                         gc_l, lc_l, pf_l,
+     &                         save1, save2,
      &                         max_coef, .false., 2, .false., error)
       if (error /= 0) then
            write(0, *) 'lmie_solution_l_f77()'
@@ -237,7 +241,7 @@ c     ******************************************************************
      &                     "on mean radius (a1)")')
            else if (i .eq. 4) then
                 write(*, '("derivatives wrt log normal size distributi",
-     &                     "on standard deviation (b1)")')
+     &                     "on standard deviation (a2)")')
            endif
            write(*, '("-----------------------------------------------",
      &                "----------------------------")')

@@ -1,6 +1,6 @@
-/******************************************************************************%
+/*******************************************************************************
 **
-**    Copyright (C) 2007-2012 Greg McGarragh <gregm@atmos.colostate.edu>
+**    Copyright (C) 2007-2020 Greg McGarragh <greg.mcgarragh@colostate.edu>
 **
 **    This source code is licensed under the GNU General Public License (GPL),
 **    Version 3.  See the file COPYING for more details.
@@ -19,27 +19,27 @@ void phase_func_integ_gc_init(int n_coef, int n_quad,
                               double *qx, double *qw, double ****P, int symmetric);
 int phase_func_integ_gc(int n_coef, int n_quad, double **pf,
                         double *qx, double *qw, double ***P,
-                        double **chi, double accuracy, int allsix, int symmetric);
+                        double **coefs, double accuracy, int allsix, int symmetric);
 int phase_func_integ_gc2(int n_coef, int n_quad, double **pf,
                          double *qx, double *qw, double ***P,
-                         double **chi, double accuracy, int allsix, int symmetric);
+                         double **coefs, double accuracy, int allsix, int symmetric);
 void phase_func_integ_lc_init(int n_coef, int n_quad,
                               double *qx, double *qw, double **P_p);
 int phase_func_integ_lc(int n_coef, int n_quad, double **pf,
                         double *qx, double *qw, double **P_p,
-                        double **chi, double accuracy, int allsix);
+                        double **coefs, double accuracy, int allsix);
 
 double phase_func_d_theta(int n_theta);
 
 void phase_func_theta(double *theta, int n_theta, double d_theta);
 
-void phase_func_exp_gc(double **chi, int n_coef,
+void phase_func_exp_gc(double **coefs, int n_coef,
                        double *mu, double **pf, int n_pf, int allsix);
-void phase_func_exp_gc_sym(double **chi, int n_coef,
+void phase_func_exp_gc_sym(double **coefs, int n_coef,
                            double *mu, double **pf, int n_pf, int allsix);
-void phase_func_exp_lc(double **chi, int n_coef,
+void phase_func_exp_lc(double **coefs, int n_coef,
                        double *mu, double **pf, int n_pf, int allsix);
-void phase_func_exp_lc_sym(double **chi, int n_coef,
+void phase_func_exp_lc_sym(double **coefs, int n_coef,
                            double *mu, double **pf, int n_pf, int allsix);
 
 int create_phase_func(int n_coef, int n_theta, int n_derivs, double **xc,

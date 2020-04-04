@@ -1,9 +1,9 @@
 c*******************************************************************************
 c
-c    Copyright (C) 2008-2012 Greg McGarragh <gregm@atmos.colostate.edu>
+c    Copyright (C) 2008-2020 Greg McGarragh <greg.mcgarragh@colostate.edu>
 c
 c    This source code is licensed under the GNU General Public License (GPL),
-c    Version 2.  See the file COPYING for more details.
+c    Version 3.  See the file COPYING for more details.
 c
 c*******************************************************************************
 
@@ -35,8 +35,8 @@ c***********************************************************************
 c***********************************************************************
 c
 c***********************************************************************
-      integer function lmie_calc_max_coef_f77(lambda, dist_name,
-     &                                        a1, b1, gamma, r1, r2)
+      integer function lmie_calc_max_coef_f77(lambda, dist_name, a1, a2, a3,
+     &                                        r1, r2)
 
       implicit none
 
@@ -45,8 +45,8 @@ c***********************************************************************
       character*64 dist_name
 
       real*8 a1
-      real*8 b1
-      real*8 gamma
+      real*8 a2
+      real*8 a3
       real*8 r1
       real*8 r2
 
@@ -59,7 +59,7 @@ c***********************************************************************
       dist_type = size_dist_code(dist_name);
 
       lmie_calc_max_coef_f77 =
-     &     lmie_calc_max_coef(lambda, dist_type, a1, b1, gamma, r1, r2)
+     &     lmie_calc_max_coef(lambda, dist_type, a1, a2, a3, r1, r2)
 
       end
 
@@ -70,8 +70,8 @@ c
 c***********************************************************************
       subroutine lmie_in_zero_derivs_f77(n_derivs,
      &                                   lambda_l, mr_l, mi_l,
-     &                                   a1_l, b1_l, a2_l, b2_l,
-     &                                   gamma_l, r1_l, r2_l)
+     &                                   a1_l, a2_l, a3_l, a4_l, a5_l,
+     &                                   r1_l, r2_l)
 
       implicit none
 
@@ -81,10 +81,10 @@ c***********************************************************************
       real*8 mr_l(n_derivs)
       real*8 mi_l(n_derivs)
       real*8 a1_l(n_derivs)
-      real*8 b1_l(n_derivs)
       real*8 a2_l(n_derivs)
-      real*8 b2_l(n_derivs)
-      real*8 gamma_l(n_derivs)
+      real*8 a3_l(n_derivs)
+      real*8 a4_l(n_derivs)
+      real*8 a5_l(n_derivs)
       real*8 r1_l(n_derivs)
       real*8 r2_l(n_derivs)
 
@@ -95,10 +95,10 @@ c***********************************************************************
            mr_l(i)     = 0.d0
            mi_l(i)     = 0.d0
            a1_l(i)     = 0.d0
-           b1_l(i)     = 0.d0
            a2_l(i)     = 0.d0
-           b2_l(i)     = 0.d0
-           gamma_l(i)  = 0.d0
+           a3_l(i)     = 0.d0
+           a4_l(i)     = 0.d0
+           a5_l(i)     = 0.d0
            r1_l(i)     = 0.d0
            r2_l(i)     = 0.d0
       enddo
@@ -112,16 +112,17 @@ c
 c***********************************************************************
       subroutine lmie_solution_f77(calc_gc, calc_lc, calc_pf,
      &                             dist_name, n_int1, n_int2, n_quad,
-     &                             n_angles,
+     &                             n_angles, save_control,
      &                             lambda, mr, mi,
-     &                             a1, b1, a2, b2,
-     &                             gamma, r1, r2,
+     &                             a1, a2, a3, a4, a5,
+     &                             r1, r2,
      &                             accuracy, n_coef,
      &                             r21, r22,
      &                             norm, reff, veff,
      &                             gavg, vavg, ravg, rvw,
      &                             cext, csca, cbak, g,
      &                             gc, lc, theta, pf,
+     &                             save1, save2,
      &                             max_coef, verbose, n_threads,
      &                             use_mpi, error)
 
@@ -138,14 +139,16 @@ c***********************************************************************
       integer n_quad
       integer n_angles
 
+      integer save_control
+
       real*8 lambda
       real*8 mr
       real*8 mi
       real*8 a1
-      real*8 b1
       real*8 a2
-      real*8 b2
-      real*8 gamma
+      real*8 a3
+      real*8 a4
+      real*8 a5
       real*8 r1
       real*8 r2
 
@@ -170,6 +173,9 @@ c***********************************************************************
       real*8 lc(max_coef, 6)
       real*8 theta(n_angles)
       real*8 pf(n_angles, 6)
+
+      integer*8 save1
+      integer*8 save2
 
       integer max_coef
       logical verbose
@@ -202,16 +208,17 @@ c     ******************************************************************
 
       ret_val = lmie_solution2(calc_gc, calc_lc, calc_pf,
      &                         dist_type, n_int1, n_int2, n_quad,
-     &                         n_angles,
+     &                         n_angles, save_control,
      &                         lambda, mr, mi,
-     &                         a1, b1, a2, b2,
-     &                         gamma, r1, r2,
+     &                         a1, a2, a3, a4, a5,
+     &                         r1, r2,
      &                         accuracy, n_coef,
      &                         r21, r22,
      &                         norm, reff, veff,
      &                         gavg, vavg, ravg, rvw,
      &                         cext, csca, cbak, g,
      &                         gc, lc, theta, pf,
+     &                         save1, save2,
      &                         max_coef, verbose, n_threads, use_mpi)
       if (ret_val .ne. 0) then
            write(0, *) 'lmie_solution2()'
@@ -229,13 +236,13 @@ c
 c***********************************************************************
       subroutine lmie_solution_l_f77(calc_gc, calc_lc, calc_pf,
      &                               dist_name, n_int1, n_int2, n_quad,
-     &                               n_angles, n_derivs,
+     &                               n_angles, n_derivs, save_control,
      &                               lambda, mr, mi,
-     &                               a1, b1, a2, b2,
-     &                               gamma, r1, r2,
+     &                               a1, a2, a3, a4, a5,
+     &                               r1, r2,
      &                               lambda_l, mr_l, mi_l,
-     &                               a1_l, b1_l, a2_l, b2_l,
-     &                               gamma_l, r1_l, r2_l,
+     &                               a1_l, a2_l, a3_l, a4_l, a5_l,
+     &                               r1_l, r2_l,
      &                               accuracy, n_coef,
      &                               r21, r22,
      &                               norm, reff, veff,
@@ -247,6 +254,7 @@ c***********************************************************************
      &                               gavg_l, vavg_l, ravg_l, rvw_l,
      &                               cext_l, csca_l, cbak_l, g_l,
      &                               gc_l, lc_l, pf_l,
+     &                               save1, save2,
      &                               max_coef, verbose, n_threads,
      &                               use_mpi, error)
 
@@ -264,14 +272,16 @@ c***********************************************************************
       integer n_angles
       integer n_derivs
 
+      integer save_control
+
       real*8 lambda
       real*8 mr
       real*8 mi
       real*8 a1
-      real*8 b1
       real*8 a2
-      real*8 b2
-      real*8 gamma
+      real*8 a3
+      real*8 a4
+      real*8 a5
       real*8 r1
       real*8 r2
 
@@ -279,10 +289,10 @@ c***********************************************************************
       real*8 mr_l(n_derivs)
       real*8 mi_l(n_derivs)
       real*8 a1_l(n_derivs)
-      real*8 b1_l(n_derivs)
       real*8 a2_l(n_derivs)
-      real*8 b2_l(n_derivs)
-      real*8 gamma_l(n_derivs)
+      real*8 a3_l(n_derivs)
+      real*8 a4_l(n_derivs)
+      real*8 a5_l(n_derivs)
       real*8 r1_l(n_derivs)
       real*8 r2_l(n_derivs)
 
@@ -324,6 +334,9 @@ c***********************************************************************
       real*8 gc_l(max_coef, 6, n_derivs)
       real*8 lc_l(max_coef, 6, n_derivs)
       real*8 pf_l(n_angles, 6, n_derivs)
+
+      integer*8 save1
+      integer*8 save2
 
       integer max_coef
       logical verbose
@@ -379,13 +392,13 @@ c     ******************************************************************
 
       ret_val = lmie_solution2_l(calc_gc2, calc_lc2, calc_pf2,
      &                           dist_type, n_int1, n_int2, n_quad,
-     &                           n_angles, n_derivs,
+     &                           n_angles, n_derivs, save_control,
      &                           lambda, mr, mi,
-     &                           a1, b1, a2, b2,
-     &                           gamma, r1, r2,
+     &                           a1, a2, a3, a4, a5,
+     &                           r1, r2,
      &                           lambda_l, mr_l, mi_l,
-     &                           a1_l, b1_l, a2_l, b2_l,
-     &                           gamma_l, r1_l, r2_l,
+     &                           a1_l, a2_l, a3_l, a4_l, a5_l,
+     &                           r1_l, r2_l,
      &                           accuracy, n_coef,
      &                           r21, r22,
      &                           norm, reff, veff,
@@ -397,6 +410,7 @@ c     ******************************************************************
      &                           gavg_l, vavg_l, ravg_l, rvw_l,
      &                           cext_l, csca_l, cbak_l, g_l,
      &                           gc_l, lc_l, pf_l,
+     &                           save1, save2,
      &                           max_coef, verbose, n_threads, use_mpi2)
       if (ret_val .ne. 0) then
            write(0, *) 'lmie_solution2()'

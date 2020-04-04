@@ -44,6 +44,8 @@ int main(int argc, char *argv[]) {
      /* Allocate memory used in the input structure for 4 derivatives */
      lmie_in_alloc(&in, 4);
 
+     in.save_control = 0;
+
      in.calc_gc   = 1;
      in.calc_lc   = 0;
      in.calc_pf   = 1;
@@ -60,10 +62,10 @@ int main(int argc, char *argv[]) {
      in.mr        = 1.530e+00;
      in.mi        = 5.400e-03;
      in.a1        = 3.900e-01;
-     in.b1        = 4.805e-01;
-     in.a2        = 0.;			/* not used for log normal */
-     in.b2        = 0.;			/* not used for log normal */
-     in.gamma     = 0.;			/* not used for log normal */
+     in.a2        = 4.805e-01;
+     in.a3        = 0.;			/* not used for log normal */
+     in.a4        = 0.;			/* not used for log normal */
+     in.a5        = 0.;			/* not used for log normal */
      in.r1        = 5.000e-03;
      in.r2        = 5.000e+01;
 
@@ -79,10 +81,10 @@ int main(int argc, char *argv[]) {
           in.mr_l[i]     = 0.;
           in.mi_l[i]     = 0.;
           in.a1_l[i]     = 0.;
-          in.b1_l[i]     = 0.;
-          in.a2_l[i]     = 0.;		/* not used for log normal */
-          in.b2_l[i]     = 0.;		/* not used for log normal */
-          in.gamma_l[i]  = 0.;		/* not used for log normal */
+          in.a2_l[i]     = 0.;
+          in.a3_l[i]     = 0.;		/* not used for log normal */
+          in.a4_l[i]     = 0.;		/* not used for log normal */
+          in.a5_l[i]     = 0.;		/* not used for log normal */
           in.r1_l[i]     = 0.;
           in.r2_l[i]     = 0.;
      }
@@ -93,7 +95,7 @@ int main(int argc, char *argv[]) {
      in.mr_l[0]   = 1.;			/* derivative 0 is with respect to mr */
      in.mi_l[1]   = 1.;			/* derivative 1 is with respect to mi */
      in.a1_l[2]   = 1.;			/* derivative 2 is with respect to a1 */
-     in.b1_l[3]   = 1.;			/* derivative 3 is with respect to b1 */
+     in.a2_l[3]   = 1.;			/* derivative 3 is with respect to a2 */
 
 
      /*-------------------------------------------------------------------------
@@ -133,7 +135,7 @@ int main(int argc, char *argv[]) {
           else if (i == 2)
                printf("derivatives wrt log normal size distribution mean radius (a1)\n");
           else if (i == 3)
-               printf("derivatives wrt log normal size distribution standard deviation (b1)\n");
+               printf("derivatives wrt log normal size distribution standard deviation (a2)\n");
           printf("---------------------------------------------------------------------------\n");
 
           output_results(out.reff_l[i], out.veff_l[i], out.gavg_l[i], out.vavg_l[i],

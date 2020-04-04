@@ -1,4 +1,5 @@
 include ../make.inc
+include ../common.inc
 
 BINARIES = example_c example_f77 example_f90
 

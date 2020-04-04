@@ -1,0 +1,48 @@
+#*******************************************************************************
+# Build system configuration file template.  Copy this to make.inc in this
+# directory and modify as needed.  The current configuration should work for a
+# standard GNU/Linux system with standard build tools.
+#*******************************************************************************
+
+
+#*******************************************************************************
+# Compiler and linker settings
+#*******************************************************************************
+CC            = gcc
+F77           = gfortran
+F90           = gfortran
+
+CCFLAGS       = -O2 -fPIC -Wall -Werror -Wno-cpp -Wno-misleading-indentation \
+                -Wno-uninitialized -Wno-unused-function -fno-strict-aliasing \
+                -fopenmp
+CXXFLAGS      = $(CCFLAGS) -Wno-terminate
+F77FLAGS      = -O2 -fPIC -Wall -Werror -Wno-uninitialized -fno-second-underscore \
+                -ffixed-line-length-none
+F90FLAGS      = -O2 -fPIC -Wall -Werror -Wno-uninitialized -fno-second-underscore \
+                -ffree-line-length-0
+
+# Link program that should be used for a mixed C/Fortran
+CFMIX_LD      = $(F90)
+CFMIX_LDFLAGS = -fopenmp
+
+
+#*******************************************************************************
+# Defaults.  Do not modify.
+#*******************************************************************************
+VERSION       = 0.91
+
+CCDEFINES     = -D'VERSION="$(VERSION)"'
+INCDIRS       = -I../src -I../interfaces -I../misc
+LIBDIRS       =
+LINKS         = -lm
+
+
+#*******************************************************************************
+# To include MPI based parallelism uncomment the CCDEFINES definition and, if
+# the MPI headers and library are installed in non-standard places, uncomment
+# INCDIRS, LIBDIRS, and LINKS and modify as needed.
+#*******************************************************************************
+#CCDEFINES += -DUSE_MPI
+#INCDIRS   += -I${HOME}/opt/mpich/include
+#LIBDIRS   += -L${HOME}/opt/mpich/lib
+#LINKS     += -lmpich -lmpl

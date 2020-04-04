@@ -1807,7 +1807,7 @@ elements of the normalized scattering matrix:
   1.800000E+02  1.012125E+00  1.012125E+00 -1.012125E+00 -1.012126E+00  0.000000E+00  0.000000E+00
 
 ---------------------------------------------------------------------------
-derivatives wrt log normal size distribution standard deviation (b1)
+derivatives wrt log normal size distribution standard deviation (a2)
 ---------------------------------------------------------------------------
 reff   =   3.241135E+00
 veff   =   1.616074E+00

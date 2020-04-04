@@ -36,6 +36,8 @@ program example_f90
      ! Allocate memory used in the input type for n_derivs derivatives.
      call lmie_in_allocate_f90(in, n_derivs)
 
+     in%save_control = 0
+
      in%calc_gc   = .true.
      in%calc_lc   = .false.
      in%calc_pf   = .true.
@@ -52,10 +54,10 @@ program example_f90
      in%mr        = 1.530d+00
      in%mi        = 5.400d-03
      in%a1        = 3.900d-01
-     in%b1        = 4.805d-01
-!    in%a2        = 			! not used for log normal
-!    in%b2        = 			! not used for log normal
-!    in%gamma     = 			! not used for log normal
+     in%a2        = 4.805d-01
+!    in%a3        = 			! not used for log normal
+!    in%a4        = 			! not used for log normal
+!    in%a5        = 			! not used for log normal
      in%r1        = 5.000d-03
      in%r2        = 5.000d+01
 
@@ -71,10 +73,10 @@ program example_f90
           in%mr_l(i)     = 0.d0
           in%mi_l(i)     = 0.d0
           in%a1_l(i)     = 0.d0
-          in%b1_l(i)     = 0.d0
-!         in%a2_l(i)     = 0.d0		! not used for log normal
-!         in%b2_l(i)     = 0.d0		! not used for log normal
-!         in%gamma_l(i)  = 0.d0		! not used for log normal
+          in%a2_l(i)     = 0.d0
+!         in%a3_l(i)     = 0.d0		! not used for log normal
+!         in%a4_l(i)     = 0.d0		! not used for log normal
+!         in%a5_l(i)     = 0.d0		! not used for log normal
           in%r1_l(i)     = 0.d0
           in%r2_l(i)     = 0.d0
      enddo
@@ -85,7 +87,7 @@ program example_f90
      in%mr_l(1)   = 1.d0                ! derivative 0 is with respect to mr
      in%mi_l(2)   = 1.d0                ! derivative 1 is with respect to mi
      in%a1_l(3)   = 1.d0                ! derivative 2 is with respect to a1
-     in%b1_l(4)   = 1.d0                ! derivative 3 is with respect to b1
+     in%a2_l(4)   = 1.d0                ! derivative 3 is with respect to a2
 
 
 
@@ -127,7 +129,7 @@ program example_f90
           else if (i .eq. 3) then
                write(*, '("derivatives wrt log normal size distribution mean radius (a1)")')
           else if (i .eq. 4) then
-               write(*, '("derivatives wrt log normal size distribution standard deviation (b1)")')
+               write(*, '("derivatives wrt log normal size distribution standard deviation (a2)")')
           endif
           write(*, '("---------------------------------------------------------------------------")')
 

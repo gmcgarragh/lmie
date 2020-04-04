@@ -1,6 +1,9 @@
 include ../make.inc
+include ../common.inc
 
-OBJECTS = lmie_int_f77.o lmie_int_f90.o lmie_int_util.o
+OBJECTS = lmie_int_f77.o \
+          lmie_int_f90.o \
+          lmie_int_util.o
 
 all: liblmie_interfaces.a
 

@@ -1,5 +1,6 @@
+NAME = lmie
+
 include make.inc
+include common.inc
 
-SUBDIRS     = src misc utils interfaces examples doc
-
-SUBDIRS_MPI = src utils
+SUBDIRS = src misc utils interfaces examples doc

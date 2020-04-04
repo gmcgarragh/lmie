@@ -36,7 +36,7 @@
  *	former being obtained by the bissection procedure and the latter
  *	resulting in the interpolation (if a,b, and c are all different
  *	the quadric interpolation is utilized, otherwise the linear one).
- *	If the latter (i.e. obtained by the interpolation) point is 
+ *	If the latter (i.e. obtained by the interpolation) point is
  *	reasonable (i.e. lies within the current interval [b,c] not being
  *	too close to the boundaries) it is accepted. The bissection result
  *	is used in the other case. Therefore, the range of uncertainty is
@@ -47,6 +47,7 @@
 
 #include <float.h>
 #include <math.h>
+#include "zeroin.h"
 #ifdef COMMENT
 double zeroin(ax,bx,f,data,tol)		/* An estimate to the root	*/
 double ax;				/* Left border | of the range	*/
@@ -75,7 +76,7 @@ double zeroin(double ax,double bx,double (*f)(double x, double *data),double *da
   					/* sion operations is delayed   */
  					/* until the last moment	*/
     double new_step;      		/* Step at this iteration       */
-   
+
     if( fabs(fc) < fabs(fb) )
     {                         		/* Swap data for b to be the 	*/
 	a = b;  b = c;  c = a;          /* best approximation		*/

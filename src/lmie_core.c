@@ -1,6 +1,6 @@
-/******************************************************************************%
+/*******************************************************************************
 **
-**    Copyright (C) 2008-2012 Greg McGarragh <gregm@atmos.colostate.edu>
+**    Copyright (C) 2008-2020 Greg McGarragh <greg.mcgarragh@colostate.edu>
 **
 **    This source code is licensed under the GNU General Public License (GPL),
 **    Version 3.  See the file COPYING for more details.
@@ -17,13 +17,23 @@
  ******************************************************************************/
 int calc_n1(double x) {
 
+     /* de Rooij 1984 */
+/*
+     return (int) (x + 4.05 * pow(x, 1. / 3.) + 60);
+*/
+     /* Mishchenko 2002 */
      return (int) (x + 4.05 * pow(x, 1. / 3.) + 8);
 }
 
 
 
-int calc_n2(int n1, dcomplex z) {
+int calc_n2(int n1, double x, dcomplex z) {
 
+     /* de Rooij 1984 */
+/*
+     return (int) (x + 4.05 * pow(x, 1. / 3.) + 10);
+*/
+     /* Mishchenko 2002 */
      return (int) (MAX(n1, cabs(z)) + 6.40 * pow(MAX(n1, cabs(z)), 1. / 3.) + 8);
 }
 
@@ -34,40 +44,44 @@ int calc_n2(int n1, dcomplex z) {
  ******************************************************************************/
 void lmie_core_shared_import(lmie_core_shared_data *d,
                              int n_qsize, int n_derivs1, int n_derivs2,
-                             int *index1, int *index2,
+                             int save_control, int *index1, int *index2,
                              double lambda, double *lambda_l,
                              dcomplex m, dcomplex *m_l, dcomplex m2,
                              double *qx, double *qw, double *nr,
                              double *fv1, double *fv2, double *fv3, double *fv4,
                              double *qx2, double *qw2,
                              double **qx_l, double **qw_l, double **nr_l,
+                             double **save1, double ***save2,
                              int n1, int n2, int n_qang) {
 
-     d->n_qsize    = n_qsize;
-     d->n_derivs1 = n_derivs1;
-     d->n_derivs2 = n_derivs2;
-     d->index1    = index1;
-     d->index2    = index2;
-     d->lambda    = lambda;
-     d->lambda_l  = lambda_l;
-     d->m         = m;
-     d->m_l       = m_l;
-     d->m2        = m2;
-     d->qx        = qx;
-     d->qw        = qw;
-     d->nr        = nr;
-     d->fv1       = fv1;
-     d->fv2       = fv2;
-     d->fv3       = fv3;
-     d->fv4       = fv4;
-     d->qx2       = qx2;
-     d->qw2       = qw2;
-     d->qx_l      = qx_l;
-     d->qw_l      = qw_l;
-     d->nr_l      = nr_l;
-     d->n1        = n1;
-     d->n2        = n2;
-     d->n_qang    = n_qang;
+     d->n_qsize      = n_qsize;
+     d->n_derivs1    = n_derivs1;
+     d->n_derivs2    = n_derivs2;
+     d->save_control = save_control;
+     d->index1       = index1;
+     d->index2       = index2;
+     d->lambda       = lambda;
+     d->lambda_l     = lambda_l;
+     d->m            = m;
+     d->m_l          = m_l;
+     d->m2           = m2;
+     d->qx           = qx;
+     d->qw           = qw;
+     d->nr           = nr;
+     d->fv1          = fv1;
+     d->fv2          = fv2;
+     d->fv3          = fv3;
+     d->fv4          = fv4;
+     d->qx2          = qx2;
+     d->qw2          = qw2;
+     d->qx_l         = qx_l;
+     d->qw_l         = qw_l;
+     d->nr_l         = nr_l;
+     d->save1        = save1;
+     d->save2        = save2;
+     d->n1           = n1;
+     d->n2           = n2;
+     d->n_qang       = n_qang;
 }
 
 
@@ -271,8 +285,11 @@ void *lmie_core(lmie_core_threads_data *d) {
           sinx = sin(x);
 
 
+          /*--------------------------------------------------------------------
+           *
+           *------------------------------------------------------------------*/
           n1 = calc_n1(x);
-          n2 = calc_n2(n1, z);
+          n2 = calc_n2(n1, x, z);
 
 
           /*--------------------------------------------------------------------
@@ -499,23 +516,35 @@ void *lmie_core(lmie_core_threads_data *d) {
                a1 += s->fv1[j] * creal(a[j] + b[j]);
 
                a2 += s->fv1[j] * (creal(a[j] * conj(a[j])) + creal(b[j] * conj(b[j])));
-
+/*
+               a2 += s->fv1[j] * (creal(a[j]) * creal(a[j]) + cimag(a[j]) * cimag(a[j]) + creal(b[j]) * creal(b[j]) + cimag(b[j]) * cimag(b[j]));
+*/
                c1 += s->fv1[j] * (a[j] - b[j]) * a3;
 
                for (k = 0; k < s->n_derivs1; ++k) {
                     a1_l[k] += s->fv1[j] * creal(a_l[j][k] + b_l[j][k]);
 
                     a2_l[k] += s->fv1[j] * 2. * (creal(a[j] * conj(a_l[j][k])) + creal(b[j] * conj(b_l[j][k])));
-
+/*
+                    a2_l[k] += s->fv1[j] * 2. * (creal(a[j]) * creal(a_l[j][k]) + cimag(a[j]) * cimag(a_l[j][k]) + creal(b_l[j][k]) * creal(b[j]) + cimag(b[j]) * cimag(b_l[j][k]));
+*/
                     c1_l[k] += s->fv1[j] * (a_l[j][k] - b_l[j][k]) * a3;
                }
 
                a3 = -a3;
           }
 
-          *d->cext += f *  a1;
-          *d->csca += f *  a2;
+          *d->cext += f * a1;
+          *d->csca += f * a2;
           *d->cbak += f * creal(c1 * conj(c1));
+/*
+          *d->cbak += f * (creal(c1) * creal(c1) + cimag(c1) * cimag(c1));
+*/
+          if (s->save_control == 1) {
+               s->save1[0][i] = a1;
+               s->save1[1][i] = a2;
+               s->save1[2][i] = creal(c1 * conj(c1));
+          }
 
           for (j = 0; j < s->n_derivs1; ++j) {
                jj = s->index1[j];
@@ -523,6 +552,9 @@ void *lmie_core(lmie_core_threads_data *d) {
                d->cext_l[jj] += f_l[j] * a1 + f * a1_l[j];
                d->csca_l[jj] += f_l[j] * a2 + f * a2_l[j];
                d->cbak_l[jj] += f_l[j] * creal(c1 * conj(c1)) + f * 2. * creal(c1 * conj(c1_l[j]));
+/*
+               d->cbak_l[jj] += f_l[j] * (creal(c1) * creal(c1) + cimag(c1) * cimag(c1)) + f * 2. * (creal(c1) * creal(c1_l[j]) + cimag(c1) * cimag(c1_l[j]));
+*/
           }
 
           for (j = 0; j < s->n_derivs2; ++j) {
@@ -545,15 +577,26 @@ void *lmie_core(lmie_core_threads_data *d) {
           for (j = 1; j < n1; ++j) {
                a1 += s->fv3[j] * creal(a[j] * conj(a[j + 1]) + b[j] * conj(b[j + 1])) +
                      s->fv4[j] * creal(a[j] * conj(b[j]));
-
+/*
+               a1 += s->fv3[j] * (creal(a[j]) * creal(a[j + 1]) + cimag(a[j]) * cimag(a[j + 1]) + creal(b[j]) * creal(b[j + 1]) + cimag(b[j]) * cimag(b[j + 1])) +
+                     s->fv4[j] * (creal(a[j]) * creal(b[j]) + cimag(a[j]) * cimag(b[j]));
+*/
                for (k = 0; k < s->n_derivs1; ++k) {
                     a1_l[k] += s->fv3[j] * creal(a_l[j][k] * conj(a[j + 1]) + a[j] * conj(a_l[j + 1][k]) +
                                                  b_l[j][k] * conj(b[j + 1]) + b[j] * conj(b_l[j + 1][k])) +
                                s->fv4[j] * creal(a_l[j][k] * conj(b[j]) + a[j] * conj(b_l[j][k]));
+/*
+                    a1_l[k] += s->fv3[j] * (creal(a_l[j][k]) * creal(a[j + 1]) + cimag(a_l[j][k]) * cimag(a[j + 1]) + creal(a[j]) * creal(a_l[j + 1][k]) + cimag(a[j]) * cimag(a_l[j + 1][k]) +
+                                            creal(b_l[j][k]) * creal(b[j + 1]) + cimag(b_l[j][k]) * cimag(b[j + 1]) + creal(b[j]) * creal(b_l[j + 1][k]) + cimag(b[j]) * cimag(b_l[j + 1][k])) +
+                               s->fv4[j] * (creal(a_l[j][k]) * creal(b[j]) + cimag(a_l[j][k]) * cimag(b[j]) + creal(a[j]) * creal(b_l[j][k]) + cimag(a[j]) * cimag(b_l[j][k]));
+*/
                }
           }
 
           *d->g += f * a1;
+
+          if (s->save_control == 1)
+               s->save1[3][i] = a1;
 
           for (j = 0; j < s->n_derivs1; ++j) {
                jj = s->index1[j];
@@ -704,6 +747,13 @@ void *lmie_core(lmie_core_threads_data *d) {
                     d->pf[1][jj] += f * a6;
                     d->pf[2][jj] += f * a7;
                     d->pf[3][jj] += f * a8;
+
+                    if (s->save_control == 1) {
+                         s->save2[0][i][jj] = a5;
+                         s->save2[1][i][jj] = a6;
+                         s->save2[2][i][jj] = a7;
+                         s->save2[3][i][jj] = a8;
+                    }
 
                     for (k = 0; k < s->n_derivs1; ++k) {
                          s1_l = .5 * (sp_l[l][k] + sm_l[l][k]);

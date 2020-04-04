@@ -1,6 +1,6 @@
-/******************************************************************************%
+/*******************************************************************************
 **
-**    Copyright (C) 2008-2012 Greg McGarragh <gregm@atmos.colostate.edu>
+**    Copyright (C) 2008-2020 Greg McGarragh <greg.mcgarragh@colostate.edu>
 **
 **    This source code is licensed under the GNU General Public License (GPL),
 **    Version 3.  See the file COPYING for more details.
@@ -18,6 +18,8 @@ extern "C" {
 
 
 typedef struct {
+     int save_control;
+
      int calc_gc;
      int calc_lc;
      int calc_pf;
@@ -34,10 +36,10 @@ typedef struct {
      double mr;
      double mi;
      double a1;
-     double b1;
      double a2;
-     double b2;
-     double gamma;
+     double a3;
+     double a4;
+     double a5;
      double r1;
      double r2;
 
@@ -45,10 +47,10 @@ typedef struct {
      double *mr_l;
      double *mi_l;
      double *a1_l;
-     double *b1_l;
      double *a2_l;
-     double *b2_l;
-     double *gamma_l;
+     double *a3_l;
+     double *a4_l;
+     double *a5_l;
      double *r1_l;
      double *r2_l;
 
@@ -93,11 +95,14 @@ typedef struct {
      double ***gc_l;
      double ***lc_l;
      double ***pf_l;
+
+     double **save1;
+     double ***save2;
 } lmie_out_data;
 
 
 int lmie_calc_max_coef(double lambda, enum size_dist_type dist_type,
-                       double a1, double b1, double gamma, double r1, double r2);
+                       double a1, double a2, double a3, double r1, double r2);
 
 int lmie_in_alloc(lmie_in_data *in, int n_derivs);
 void lmie_in_free(lmie_in_data *in, int flag);
@@ -112,28 +117,29 @@ int lmie_solution(lmie_in_data *in, lmie_out_data *out, int alloc_out, int verbo
 int lmie_solution2(int calc_gc, int calc_lc, int calc_pf,
                    enum size_dist_type dist_type,
                    int n_int1, int n_int2,
-                   int n_quad, int n_angles,
+                   int n_quad, int n_angles, int save_control,
                    double lambda, double mr, double mi,
-                   double a1, double b1, double a2, double b2,
-                   double gamma, double r1, double r2,
+                   double a1, double a2, double a3, double a4, double a5,
+                   double r1, double r2,
                    double accuracy, int *n_coef,
                    double *r21, double *r22,
                    double *norm, double *reff, double *veff,
                    double *gavg, double *vavg, double *ravg, double *rvw,
                    double *cext, double *csca, double *cbak, double *g,
                    double **gc, double **lc, double *theta, double **pf,
+                   double ***save1, double ****save2,
                    int verbose, int n_threads, int use_mpi);
 
 int lmie_solution2_l(int calc_gc, int calc_lc, int calc_pf,
                      enum size_dist_type dist_type,
                      int n_int1, int n_int2, int n_quad,
-                     int n_angles, int n_derivs,
+                     int n_angles, int n_derivs, int save_control,
                      double lambda, double mr, double mi,
-                     double a1, double b1, double a2, double b2,
-                     double gamma, double r1, double r2,
+                     double a1, double a2, double a3, double a4, double a5,
+                     double r1, double r2,
                      double *lambda_l, double *mr_l, double *mi_l,
-                     double *a1_l, double *b1_l, double *a2_l, double *b2_l,
-                     double *gamma_l, double *r1_l, double *r2_l,
+                     double *a1_l, double *a2_l, double *a3_l, double *a4_l, double *a5_l,
+                     double *r1_l, double *r2_l,
                      double accuracy, int *n_coef,
                      double *r21, double *r22,
                      double *norm, double *reff, double *veff,
@@ -145,9 +151,10 @@ int lmie_solution2_l(int calc_gc, int calc_lc, int calc_pf,
                      double *gavg_l, double *vavg_l, double *ravg_l, double *rvw_l,
                      double *cext_l, double *csca_l, double *cbak_l, double *g_l,
                      double ***gc_l, double ***lc_l, double ***pf_l,
+                     double ***save1, double ****save2,
                      int verbose, int n_threads, int use_mpi);
 
-int lmie_solution_slave();
+int lmie_solution_slave(void);
 
 
 
