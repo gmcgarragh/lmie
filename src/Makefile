@@ -1,6 +1,8 @@
 include ../make.inc
 include ../common.inc
 
+SUBDIRS =
+
 OBJECTS = lmie_core.o \
           lmie_interface.o \
           lmie_schedule.o

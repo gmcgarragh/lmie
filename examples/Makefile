@@ -1,6 +1,8 @@
 include ../make.inc
 include ../common.inc
 
+SUBDIRS =
+
 BINARIES = example_c example_f77 example_f90
 
 all: $(BINARIES)

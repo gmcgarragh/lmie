@@ -1,6 +1,8 @@
 include ../make.inc
 include ../common.inc
 
+SUBDIRS =
+
 BINARIES = calllmie calllmie_pthreads
 
 all: $(BINARIES)

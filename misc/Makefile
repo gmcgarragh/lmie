@@ -1,6 +1,8 @@
 include ../make.inc
 include ../common.inc
 
+SUBDIRS =
+
 OBJECTS = gindex_name_value.o \
           gutil_alloc.o       \
           gutil_error.o       \

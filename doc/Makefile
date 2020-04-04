@@ -1,6 +1,8 @@
 include ../make.inc
 include ../common.inc
 
+SUBDIRS =
+
 PRODUCTS = lmie.aux lmie.bbl lmie.blg lmie.brf lmie.log lmie.out lmie.toc \
            lmie_equations.aux lmie_equations.log lmie_equations.out lmie_equations.toc \
            # lmie.pdf lmie_equations.pdf *.html

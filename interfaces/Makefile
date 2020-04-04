@@ -1,6 +1,8 @@
 include ../make.inc
 include ../common.inc
 
+SUBDIRS =
+
 OBJECTS = lmie_int_f77.o \
           lmie_int_f90.o \
           lmie_int_util.o
