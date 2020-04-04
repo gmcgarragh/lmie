@@ -1,0 +1,216 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 4.03">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ <style type="text/css"><!--
+ .tiny {font-size:30%;}
+ .scriptsize {font-size:xx-small;}
+ .footnotesize {font-size:x-small;}
+ .smaller {font-size:smaller;}
+ .small {font-size:small;}
+ .normalsize {font-size:medium;}
+ .large {font-size:large;}
+ .larger {font-size:x-large;}
+ .largerstill {font-size:xx-large;}
+ .huge {font-size:300%;}
+ --></style>
+<title>sec2.html</title>
+<table width="100%"><tr><td>
+ <a href="index.html">HEAD</a></td><td align="right">
+ <a href="sec1.html">PREVIOUS
+</a></td></tr></table>
+ <a id="tth_sEc2"></a><h2>
+2&nbsp;&nbsp;Building and Using LMie</h2>
+<a id="building_and_using_lmie">
+</a>
+
+<div class="p"><!----></div>
+This section discusses, first, the process of building (compiling) LMie including the core library, the language interfaces, the example programs, and the utility programs.  Then the compilation details of using the LMie core library and the appropriate language interface in your programs is outlined.
+
+<div class="p"><!----></div>
+     <a id="tth_sEc2.1"></a><h3>
+2.1&nbsp;&nbsp;Building LMie</h3>
+<a id="building_and_using_lmie_building_lmie">
+</a>
+
+<div class="p"><!----></div>
+      <a id="tth_sEc2.1.1"></a><h4>
+2.1.1&nbsp;&nbsp;GNU Make</h4>
+<a id="building_and_using_lmie_building_lmie_gnu_make">
+</a>
+
+<div class="p"><!----></div>
+The standard build system uses GNU Make (other versions of UNIX Make may work but are not tested).  This should work on Linux, Unix, Mac OS, and on Windows using either <a href="http://www.cygwin.com/">Cygwin</a> or <a href="http://www.mingw.org/">MinGW (Minimalist GNU for Windows)</a>.
+
+<div class="p"><!----></div>
+The first step is to configure the build for your environment.  This includes setting the compiler commands and the associated options and setting the appropriate paths to external libraries.  Settings are contained in the file <tt>make.inc</tt> in the LMie base directory.
+
+<div class="p"><!----></div>
+Compiler and associated options are contained within the section identified as "Compiler and linker settings".  The commands for the compilers to use are represented by the variables <tt>CC</tt>, <tt>F77</tt>, and <tt>F90</tt>, for the C, Fortran 77, and Fortran 90 compilers, respectively, and the associated options are represented by the variables <tt>CCFLAGS</tt>, <tt>F77FLAGS</tt>, and <tt>F90FLAGS</tt>.  The default settings are appropriate for GCC (GNU Compiler Collection) versions 4.2 and greater and should not have to be modified unless other compilers are being used.  Note that LMie is entirely C89/90 compliant except for the use of complex types.  Therefore, the C compiler must be C99 compliant.  As an alternative, all of LMie's C code may be built with a C++ compiler in which case the complex support is through the C++ standard library's complex class.
+
+<div class="p"><!----></div>
+The next section of <tt>make.inc</tt> is for OpenMP settings.  If multithreading is desired then uncomment the variable appendices in this section and set the appropriate OpenMP compiler flags for the <tt>CCFLAGS</tt>, <tt>F77FLAGS</tt>, and <tt>F90FLAGS</tt> variables.
+
+<div class="p"><!----></div>
+The next section of <tt>make.inc</tt> is for MPI settings.  If the MPI version of LMie is desired then an MPI implementation should be made available.  The variable <tt>MPI_INCDIR</tt> should be set to the path to the directory with the MPI include files, the variable <tt>MPI_LIBDIR</tt> should be set to the path to the directory with the MPI library files, and the variable <tt>MPI_LINK</tt> should be set to the appropriate compiler link flag.  The default settings are for a <a href="http://www.mcs.anl.gov/research/projects/mpich2/">MPICH2</a> installation located at <tt>$HOME/opt/mpich2/</tt>.
+
+<div class="p"><!----></div>
+Once the proper settings have been set in <tt>make.inc</tt> LMie may be compiled by executing
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make
+
+</pre>
+and for the MPI version of LMie
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make&nbsp;mpi
+
+</pre>
+
+<div class="p"><!----></div>
+      <a id="tth_sEc2.1.2"></a><h4>
+2.1.2&nbsp;&nbsp;Visual Studio</h4>
+<a id="building_and_using_lmie_building_lmie_visual_studio">
+</a>
+
+<div class="p"><!----></div>
+LMie may also be built on Windows using Visual Studio and, if the Fortran 77 and/or 90 interfaces are desired, with Intel's Visual Fortran Composer XE for Windows.  Supported versions of Visual Studio are 2005, 2008, and 2010.   Depending on which version is being used the LMie Visual Studio solution may be loaded from one of the following solution (<tt>.sln</tt>) files relative to the LMie base directory:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msvs_2005/lmie.sln
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msvs_2008/lmie.sln
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msvs_2010/lmie.sln
+
+</pre>
+
+<div class="p"><!----></div>
+     <a id="tth_sEc2.2"></a><h3>
+2.2&nbsp;&nbsp;Using LMie in your code</h3>
+<a id="building_and_using_lmie_using_lmie_in_your_code">
+</a>
+
+<div class="p"><!----></div>
+To use LMie in your own code you have to include/use the appropriate header/module file and link with the appropriate LMie library files and any required external library files.
+
+<div class="p"><!----></div>
+      <a id="tth_sEc2.2.1"></a><h4>
+2.2.1&nbsp;&nbsp;C/C++</h4>
+<a id="building_and_using_lmie_using_lmie_in_your_code_c_cpp">
+</a>
+
+<div class="p"><!----></div>
+The C interface is part of the core library in the <tt>src/</tt> directory.  To use the C interface your code must include the following header file:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src/lmie_interface.h
+
+</pre>
+and must link with the following libraries:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src/liblmie.a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc/liblmie_misc.a
+
+</pre>
+or when using Visual Studio the following libraries:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie.lib
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie_misc.lib
+
+</pre>
+where the variable <tt>$(SolutionDir)</tt> is <tt>msvs_2005</tt>, <tt>msvs_2008</tt>, or <tt>msvs_2010</tt> and the variable <tt>$(ConfigurationName)</tt> is <tt>Debug</tt> or <tt>Release</tt>.
+
+<div class="p"><!----></div>
+For example, if one has C code in a file named <tt>my_code.c</tt>, includes the LMie C interface header file with
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#include&nbsp;&lt;lmie_interface.h&#62;
+
+</pre>
+and uses GCC to compile and link the code the command may look like this
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gcc&nbsp;-O2&nbsp;my_code.c&nbsp;-I$(LMIE_HOME)/src&nbsp;-L$(LMIE_HOME)/src&nbsp;-L$(LMIE_HOME)/misc&nbsp;\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-llmie&nbsp;-llmie_misc
+
+</pre>
+where the variable <tt>$(LMIE_HOME)</tt> is the location of the LMie base directory.  For more information, take a look at the build details for the C interface example program <tt>examples/example_c.c</tt>.
+
+<div class="p"><!----></div>
+      <a id="tth_sEc2.2.2"></a><h4>
+2.2.2&nbsp;&nbsp;Fortran 77</h4>
+<a id="building_and_using_lmie_using_lmie_in_your_code_fortran_77">
+</a>
+
+<div class="p"><!----></div>
+To use the Fortran 77 interface your code must include the following file:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interfaces/lmie_int_f77.inc
+
+</pre>
+and must link with the following libraries:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src/liblmie.a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc/liblmie_misc.a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interfaces/liblmie_interfaces.a
+
+</pre>
+or when using Visual Studio the following libraries:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie.lib
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie_misc.lib
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie_interfaces.lib
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie_interfaces_f.lib
+
+</pre>
+where the variable <tt>$(SolutionDir)</tt> is <tt>msvs_2005</tt>, <tt>msvs_2008</tt>, or <tt>msvs_2010</tt> and the variable <tt>$(ConfigurationName)</tt> is <tt>Debug</tt> or <tt>Release</tt>.  For more information, take a look at the build details for the Fortran 77 interface example program <tt>examples/example_f77.f</tt>.
+
+<div class="p"><!----></div>
+      <a id="tth_sEc2.2.3"></a><h4>
+2.2.3&nbsp;&nbsp;Fortran 90</h4>
+<a id="building_and_using_lmie_using_lmie_in_your_code_fortran_90">
+</a>
+
+<div class="p"><!----></div>
+To use the Fortran 90 interface your code must <tt>USE</tt> the <tt>LMIE_INT_F90</tt> module
+and must link with the following libraries:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src/liblmie.a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;misc/liblmie_misc.a
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;interfaces/liblmie_interfaces.a
+
+</pre>
+or when using Visual Studio the following libraries:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie.lib
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie_misc.lib
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie_interfaces.lib
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(SolutionDir)/$(ConfigurationName)/liblmie_interfaces_f.lib
+
+</pre>
+where the variable <tt>$(SolutionDir)</tt> is <tt>msvs_2005</tt>, <tt>msvs_2008</tt>, or <tt>msvs_2010</tt> and the variable <tt>$(ConfigurationName)</tt> is <tt>Debug</tt> or <tt>Release</tt>.  For more information, take a look at the build details for the Fortran 90 interface example program <tt>examples/example_f90.f90</tt>.
+
+<div class="p"><!----></div>
+
+<hr /><table width="100%"><tr><td>
+ <a href="index.html">HEAD</a></td><td align="right">
+<a href="sec3.html">NEXT
+</a></td></tr></table>
+</div></body></html>

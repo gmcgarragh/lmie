@@ -1,0 +1,84 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 4.03">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ <style type="text/css"><!--
+ .tiny {font-size:30%;}
+ .scriptsize {font-size:xx-small;}
+ .footnotesize {font-size:x-small;}
+ .smaller {font-size:smaller;}
+ .small {font-size:small;}
+ .normalsize {font-size:medium;}
+ .large {font-size:large;}
+ .larger {font-size:x-large;}
+ .largerstill {font-size:xx-large;}
+ .huge {font-size:300%;}
+ --></style>
+<title>sec1.html</title>
+<table width="100%"><tr><td>
+ <a href="index.html">HEAD</a></td><td align="right">
+ <a href="index.html">PREVIOUS
+</a></td></tr></table>
+ <a id="tth_sEc1"></a><h2>
+1&nbsp;&nbsp;Introduction to LMie</h2>
+<a id="introduction_to_lmie">
+</a>
+
+<div class="p"><!----></div>
+LMie (Linearized Mie) computes the scattering properties for polydisperse homogeneous spherical particles using Mie theory&nbsp;[<a href="refs.html#mie_gustav_1908" id="CITEmie_gustav_1908">Mie, 1908</a>].  Six different particle size distributions are supported including power law, modified power law, gamma, modified gamma, log normal, and modified bimodal log normal.  The outputs include the extinction, scattering, and backscattering cross sections; asymmetry parameter, elements of the normalized scattering matrix, coefficients for the expansion of the scattering matrix in either generalized spherical functions or Legendre functions, and finally, several quantities related to the numerical integration of the size distribution including the effective radius and effective variance.  
+
+<div class="p"><!----></div>
+LMie has two other features that sets it apart from other Mie scattering implementations.  First, it has the option to analytically generate derivatives of the outputs with respect to input parameters such as size distribution parameters and the real and imaginary parts of the complex index of refraction.  This makes LMie convenient for sensitivity studies and remote sensing retrievals of particle properties.  Second, LMie is parallelized over the size distribution integration with OpenMP for shared memory systems such as multi-core workstations and with MPI for clusters.
+
+<div class="p"><!----></div>
+LMie's core library is coded in C with a well defined application programming interface (API) and is thread safe so that multiple instances can be called safely in shared memory multi-processor environments.  Interfaces are also provided for Fortran 77 and Fortran 90 and, alternatively, LMie can be executed independently as a stand alone program.  Finally, example programs that call LMie are provided for each language interface.
+
+<div class="p"><!----></div>
+For up to date information regarding LMie, to download the source code distribution, and/or to view the documentation please visit the LMie web page at
+
+<dl>
+ <dt><b></b></dt>
+	<dd><a href="http://reef.atmos.colostate.edu/~gregm/lmie/"><tt>http://reef.atmos.colostate.edu/~gregm/lmie/</tt></a></dd>
+</dl>
+
+<div class="p"><!----></div>
+For questions or comments or to report a bug email Greg at <a href="mailto:gregm@atmos.colostate.edu">gregm@atmos.colostate.edu</a>.  Bug reports are greatly appreciated!  If you would like to report a bug please include sample code that reproduces the bug, along with the inputs and expected outputs.
+
+<div class="p"><!----></div>
+
+     <a id="tth_sEc1.1"></a><h3>
+1.1&nbsp;&nbsp;License</h3>
+<a id="introduction_to_lmie_license">
+</a>
+
+<div class="p"><!----></div>
+LMie is licensed under the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License (GPL), Version 3</a> a copy of which is in the file COPYING in the top level directory of the LMie source code distribution.
+
+<div class="p"><!----></div>
+
+     <a id="tth_sEc1.2"></a><h3>
+1.2&nbsp;&nbsp;Conventions used in this manual</h3>
+<a id="introduction_to_lmie_conventions_used_in_this_manual">
+</a>
+
+<div class="p"><!----></div>
+Source code such as interface definitions and examples are typeset in <tt>typewriter font</tt>.  Source code identifiers such as variable names and function names are also typeset in bold, while function argument types, modifiers, and names, are also typeset in italics.  For example, a function name will be typeset in bold typewriter font as <tt><tt><b>func_name</b></tt></tt>, argument types in italic typewriter font as <tt><tt><i>int</i></tt></tt>, and argument names in bold italic typewriter font as <tt><tt><i><b>arg_name</b></i></tt></tt>.
+
+<div class="p"><!----></div>
+Internet links are typeset in the standard color blue.  Links that are local to the manual are typeset in a dark red except for citations that link to their corresponding bibliography entries which are in a dark green.
+
+<hr /><table width="100%"><tr><td>
+ <a href="index.html">HEAD</a></td><td align="right">
+<a href="sec2.html">NEXT
+</a></td></tr></table>
+</div></body></html>
