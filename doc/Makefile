@@ -5,7 +5,7 @@ SUBDIRS =
 
 PRODUCTS = lmie.aux lmie.bbl lmie.blg lmie.brf lmie.log lmie.out lmie.toc \
            lmie_equations.aux lmie_equations.log lmie_equations.out lmie_equations.toc \
-           # lmie.pdf lmie_equations.pdf *.html
+           lmie_equations.pdf # lmie.pdf *.html
 
 all: lmie.pdf lmie_equations.pdf index.html
 
