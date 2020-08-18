@@ -499,6 +499,11 @@ subroutine lmie_solution_f90(in, out, alloc, verbose, n_threads, use_mpi, error)
 
      integer                          :: ret_val
      integer                          :: max_coef
+     integer                          :: calc_gc
+     integer                          :: calc_lc
+     integer                          :: calc_pf
+     integer                          :: verbose_
+     integer                          :: use_mpi_
 
      integer                          :: lmie_calc_max_coef
      integer                          :: lmie_solution2_l
@@ -510,7 +515,19 @@ subroutine lmie_solution_f90(in, out, alloc, verbose, n_threads, use_mpi, error)
           call lmie_out_allocate_f90(in, out, max_coef)
      endif
 
-     ret_val = lmie_solution2_l(in%calc_gc, in%calc_lc, in%calc_pf, &
+     calc_gc = 0
+     calc_lc = 0
+     calc_pf = 0
+     verbose_ = 0
+     use_mpi_ = 0
+
+     if (in%calc_gc) calc_gc = 1
+     if (in%calc_lc) calc_lc = 1
+     if (in%calc_pf) calc_pf = 1
+     if (verbose) verbose_ = 1
+     if (use_mpi) use_mpi_ = 1
+
+     ret_val = lmie_solution2_l(calc_gc, calc_lc, calc_pf, &
                                 in%dist_type, in%n_int1, in%n_int2, in%n_quad, &
                                 in%n_angles, in%n_derivs, in%save_control, &
                                 in%lambda, in%mr, in%mi, &
@@ -531,7 +548,7 @@ subroutine lmie_solution_f90(in, out, alloc, verbose, n_threads, use_mpi, error)
                                 out%cext_l, out%csca_l, out%cbak_l, out%g_l, &
                                 out%gc_l, out%lc_l, out%pf_l, &
                                 out%save1, out%save2, &
-                                max_coef, verbose, n_threads, use_mpi)
+                                max_coef, verbose_, n_threads, use_mpi_)
      if (ret_val /= 0) then
           write(0, *) 'lmie_solution2_l()'
           error = -1;
